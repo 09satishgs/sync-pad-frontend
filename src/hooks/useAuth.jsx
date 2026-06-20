@@ -1,10 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-
-// Configure Axios defaults for credentials (cookie sending)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-axios.defaults.baseURL = `${API_URL}/api`;
-axios.defaults.withCredentials = true;
+import api from '../api';
+import { ENDPOINTS } from '../constants/config';
 
 const AuthContext = createContext(null);
 
@@ -16,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const checkSession = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/auth/session');
+      const res = await api.get(ENDPOINTS.AUTH.SESSION);
       setUser(res.data.user);
       setError(null);
     } catch (err) {
@@ -34,7 +30,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setError(null);
-      const res = await axios.post('/auth/login', { username, password });
+      const res = await api.post(ENDPOINTS.AUTH.LOGIN, { username, password });
       setUser(res.data.user);
       return res.data;
     } catch (err) {
@@ -47,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, password) => {
     try {
       setError(null);
-      const res = await axios.post('/auth/register', { username, password });
+      const res = await api.post(ENDPOINTS.AUTH.REGISTER, { username, password });
       return res.data;
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed';
@@ -58,7 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post('/auth/logout');
+      await api.post(ENDPOINTS.AUTH.LOGOUT);
       setUser(null);
     } catch (err) {
       console.error('Logout failed:', err);

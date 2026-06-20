@@ -1,0 +1,39 @@
+/* Main Workspace Header */
+.header {
+  height: 56px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background-color: var(--bg-sidebar);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sheet-title-input {
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  padding: 2px 4px;
+}
+
+.sheet-title-input:focus {
+  border-color: var(--border-focus);
+  outline: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
+  }
+}

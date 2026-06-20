@@ -1,0 +1,53 @@
+/* TXT Quill Editor Customizations */
+.quill-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quill-wrapper .ql-toolbar.ql-snow {
+  border: none;
+  border-bottom: 1px solid var(--border-color) !important;
+  background-color: var(--bg-sidebar);
+  padding: 8px 24px !important;
+}
+
+.quill-wrapper .ql-container.ql-snow {
+  border: none !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quill-wrapper .ql-editor {
+  padding: 24px !important;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  height: 100%;
+  min-height: 70vh;
+  flex: 1;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .quill-wrapper .ql-toolbar.ql-snow {
+    padding: 8px 12px !important;
+  }
+
+  .quill-wrapper .ql-editor {
+    padding: 16px !important;
+  }
+}
+
+.quill-wrapper.read-only .ql-toolbar {
+  display: none !important;
+}
+
+.quill-wrapper.read-only .ql-container.ql-snow {
+  border-top: 1px solid var(--border-color) !important;
+}
+
