@@ -1,8 +1,9 @@
-import React from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useSidebar } from './useSidebar';
-import { HEADINGS } from '../../constants/headings';
-import './Sidebar.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useSidebar } from "./useSidebar";
+import { HEADINGS } from "../../constants/headings";
+import "./Sidebar.css";
 
 export const Sidebar = ({
   categories,
@@ -17,8 +18,15 @@ export const Sidebar = ({
   sidebarOpen,
   setSidebarOpen,
   activeTabId,
+  workspaces = [],
+  activeWorkspaceId,
+  setActiveWorkspaceId,
+  isMaintainer,
+  setShowInviteModal,
+  isAdmin,
 }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const {
     newCatName,
     setNewCatName,
@@ -45,27 +53,55 @@ export const Sidebar = ({
   });
 
   return (
-    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+    <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
       <div className="sidebar-header">
         <div className="sidebar-brand">
           {HEADINGS.APP_TITLE} <span>{HEADINGS.APP_VERSION}</span>
         </div>
         <button
           className="btn"
-          style={{ display: 'none', padding: '0 6px', height: '24px' }}
+          style={{ display: "none", padding: "0 6px", height: "24px" }}
           onClick={() => setSidebarOpen(false)}
         >
           ✕
         </button>
       </div>
 
+      {workspaces.length > 0 && (
+        <div className="workspace-selector-container">
+          <select
+            className="select-type"
+            value={activeWorkspaceId || ""}
+            onChange={(e) => setActiveWorkspaceId(Number(e.target.value))}
+          >
+            {workspaces.map((ws) => (
+              <option key={ws.id} value={ws.id}>
+                💼 {ws.name}
+              </option>
+            ))}
+          </select>
+
+          {isMaintainer && (
+            <button
+              className="btn"
+              onClick={() => setShowInviteModal(true)}
+              title="Invite members"
+            >
+              👥
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="sidebar-content">
         {/* Active Live Sheet Status */}
-        <div className="sidebar-section-title">{HEADINGS.SIDEBAR.WORKSPACE_TITLE}</div>
+        <div className="sidebar-section-title">
+          {HEADINGS.SIDEBAR.WORKSPACE_TITLE}
+        </div>
         {activeSheet ? (
           <div
-            className={`sidebar-item ${activeTabId === 'live' ? 'active' : ''}`}
-            onClick={() => onOpenSavedSheet({ id: 'live' })}
+            className={`sidebar-item ${activeTabId === "live" ? "active" : ""}`}
+            onClick={() => onOpenSavedSheet({ id: "live" })}
           >
             <div className="sidebar-item-label">
               <span className="badge badge-live">Live</span>
@@ -73,23 +109,29 @@ export const Sidebar = ({
             </div>
           </div>
         ) : (
-          <div style={{ padding: '8px', color: 'var(--text-muted)', fontSize: '12px' }}>
+          <div
+            style={{
+              padding: "8px",
+              color: "var(--text-muted)",
+              fontSize: "12px",
+            }}
+          >
             {HEADINGS.SIDEBAR.NO_ACTIVE_SHEET}
           </div>
         )}
 
         {/* Live Workspace Actions */}
-        <div style={{ display: 'flex', gap: '4px', padding: '4px 8px' }}>
+        <div style={{ display: "flex", gap: "4px", padding: "4px 8px" }}>
           <button
             className="btn btn-primary"
-            style={{ flex: 1, fontSize: '11px', height: '28px' }}
+            style={{ flex: 1, fontSize: "11px", height: "28px" }}
             onClick={onSaveLiveSheet}
           >
             Save / Archive
           </button>
           <button
             className="btn btn-danger"
-            style={{ fontSize: '11px', height: '28px' }}
+            style={{ fontSize: "11px", height: "28px" }}
             onClick={onDeleteLiveSheet}
             title="Delete and Reset Live Sheet"
           >
@@ -98,11 +140,16 @@ export const Sidebar = ({
         </div>
 
         {/* Saved Folders / Categories */}
-        <div className="sidebar-section-title">{HEADINGS.SIDEBAR.SAVED_SHEETS_TITLE}</div>
+        <div className="sidebar-section-title">
+          {HEADINGS.SIDEBAR.SAVED_SHEETS_TITLE}
+        </div>
 
         {/* Create Category Trigger */}
         {showCatInput ? (
-          <form onSubmit={handleCreateCategorySubmit} style={{ padding: '0 8px 8px 8px' }}>
+          <form
+            onSubmit={handleCreateCategorySubmit}
+            style={{ padding: "0 8px 8px 8px" }}
+          >
             <input
               type="text"
               className="input-field"
@@ -110,20 +157,20 @@ export const Sidebar = ({
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               autoFocus
-              style={{ height: '28px', fontSize: '12px', marginBottom: '4px' }}
+              style={{ height: "28px", fontSize: "12px", marginBottom: "4px" }}
             />
-            <div style={{ display: 'flex', gap: '4px' }}>
+            <div style={{ display: "flex", gap: "4px" }}>
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ flex: 1, height: '24px', fontSize: '10px' }}
+                style={{ flex: 1, height: "24px", fontSize: "10px" }}
               >
                 {HEADINGS.SIDEBAR.ADD_BTN}
               </button>
               <button
                 type="button"
                 className="btn"
-                style={{ height: '24px', fontSize: '10px' }}
+                style={{ height: "24px", fontSize: "10px" }}
                 onClick={() => setShowCatInput(false)}
               >
                 {HEADINGS.SIDEBAR.CANCEL_BTN}
@@ -134,11 +181,11 @@ export const Sidebar = ({
           <button
             className="btn"
             style={{
-              width: 'calc(100% - 16px)',
-              margin: '0 8px 8px 8px',
-              height: '26px',
-              fontSize: '11px',
-              borderStyle: 'dashed',
+              width: "calc(100% - 16px)",
+              margin: "0 8px 8px 8px",
+              height: "26px",
+              fontSize: "11px",
+              borderStyle: "dashed",
             }}
             onClick={() => setShowCatInput(true)}
           >
@@ -146,27 +193,30 @@ export const Sidebar = ({
           </button>
         )}
 
-        <div style={{ padding: '0 8px' }}>
+        <div style={{ padding: "0 8px" }}>
           {/* Categories and their sheets */}
           {categories.map((cat) => {
             const isExpanded = !!expandedCats[cat.id];
             const catSheets = sheetsByCat[cat.id] || [];
             return (
               <div key={cat.id} className="category-folder">
-                <div className="category-header" onClick={() => toggleCategory(cat.id)}>
+                <div
+                  className="category-header"
+                  onClick={() => toggleCategory(cat.id)}
+                >
                   <span>
                     📁 {cat.name} ({catSheets.length})
                   </span>
-                  <span>{isExpanded ? '▼' : '▶'}</span>
+                  <span>{isExpanded ? "▼" : "▶"}</span>
                 </div>
                 {isExpanded && (
                   <div className="category-sheets">
                     {catSheets.length === 0 ? (
                       <div
                         style={{
-                          padding: '6px 8px',
-                          color: 'var(--text-muted)',
-                          fontSize: '11px',
+                          padding: "6px 8px",
+                          color: "var(--text-muted)",
+                          fontSize: "11px",
                         }}
                       >
                         {HEADINGS.SIDEBAR.EMPTY_FOLDER}
@@ -176,7 +226,7 @@ export const Sidebar = ({
                         <div
                           key={sheet.id}
                           className={`sidebar-item ${
-                            activeTabId === sheet.id ? 'active' : ''
+                            activeTabId === sheet.id ? "active" : ""
                           }`}
                           onClick={() => onOpenSavedSheet(sheet)}
                         >
@@ -194,20 +244,21 @@ export const Sidebar = ({
 
           {/* Uncategorized Sheets Folder */}
           <div className="category-folder">
-            <div className="category-header" onClick={() => toggleCategory('uncat')}>
-              <span>
-                📁 Uncategorized ({uncategorizedSheets.length})
-              </span>
-              <span>{expandedCats['uncat'] ? '▼' : '▶'}</span>
+            <div
+              className="category-header"
+              onClick={() => toggleCategory("uncat")}
+            >
+              <span>📁 Uncategorized ({uncategorizedSheets.length})</span>
+              <span>{expandedCats["uncat"] ? "▼" : "▶"}</span>
             </div>
-            {expandedCats['uncat'] && (
+            {expandedCats["uncat"] && (
               <div className="category-sheets">
                 {uncategorizedSheets.length === 0 ? (
                   <div
                     style={{
-                      padding: '6px 8px',
-                      color: 'var(--text-muted)',
-                      fontSize: '11px',
+                      padding: "6px 8px",
+                      color: "var(--text-muted)",
+                      fontSize: "11px",
                     }}
                   >
                     {HEADINGS.SIDEBAR.EMPTY_FOLDER}
@@ -216,7 +267,7 @@ export const Sidebar = ({
                   uncategorizedSheets.map((sheet) => (
                     <div
                       key={sheet.id}
-                      className={`sidebar-item ${activeTabId === sheet.id ? 'active' : ''}`}
+                      className={`sidebar-item ${activeTabId === sheet.id ? "active" : ""}`}
                       onClick={() => onOpenSavedSheet(sheet)}
                     >
                       <div className="sidebar-item-label">
@@ -231,10 +282,18 @@ export const Sidebar = ({
         </div>
 
         {/* Archived Sheets Section */}
-        <div className="sidebar-section-title">{HEADINGS.SIDEBAR.ARCHIVED_SHEETS_TITLE}</div>
-        <div style={{ padding: '0 8px' }}>
+        <div className="sidebar-section-title">
+          {HEADINGS.SIDEBAR.ARCHIVED_SHEETS_TITLE}
+        </div>
+        <div style={{ padding: "0 8px" }}>
           {archivedSheets.length === 0 ? (
-            <div style={{ padding: '6px 8px', color: 'var(--text-muted)', fontSize: '12px' }}>
+            <div
+              style={{
+                padding: "6px 8px",
+                color: "var(--text-muted)",
+                fontSize: "12px",
+              }}
+            >
               {HEADINGS.SIDEBAR.NO_ARCHIVED_SHEETS}
             </div>
           ) : (
@@ -254,25 +313,58 @@ export const Sidebar = ({
         </div>
       </div>
 
+      {isAdmin && (
+        <div
+          style={{
+            padding: "0 8px 8px 8px",
+            borderTop: "1px solid var(--border-color)",
+            paddingTop: "8px",
+          }}
+        >
+          <button
+            className="btn"
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              height: "32px",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/admin")}
+          >
+            ⚙️ Admin Dashboard
+          </button>
+        </div>
+      )}
+
       {/* User profile footer */}
       <div className="sidebar-footer">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div
             style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              maxWidth: '140px',
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "140px",
             }}
           >
-            <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+            <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>
               {HEADINGS.SIDEBAR.ACTIVE_USER}
             </span>
             <div style={{ fontWeight: 600 }}>{user?.username}</div>
           </div>
           <button
             className="btn"
-            style={{ fontSize: '11px', padding: '0 8px', height: '26px' }}
+            style={{ fontSize: "11px", padding: "0 8px", height: "26px" }}
             onClick={logout}
           >
             {HEADINGS.SIDEBAR.LOGOUT_BTN}

@@ -1,15 +1,17 @@
-import React from 'react';
-import { Sidebar } from '../../components/Sidebar/Sidebar';
-import { TabBar } from '../../components/TabBar/TabBar';
-import { Header } from '../../components/Header/Header';
-import { QuillEditor } from '../../components/QuillEditor/QuillEditor';
-import { SaveLiveSheetModal } from '../../components/Modals/SaveLiveSheetModal';
-import { ConflictResolutionModal } from '../../components/Modals/ConflictResolutionModal';
-import { ArchivedPreviewModal } from '../../components/Modals/ArchivedPreviewModal';
-import { ToastContainer } from '../../components/Toast/ToastContainer';
-import { useDashboardPage } from './useDashboardPage';
-import { HEADINGS } from '../../constants/headings';
-import './DashboardPage.css';
+import React from "react";
+import { Sidebar } from "../../components/Sidebar/Sidebar";
+import { TabBar } from "../../components/TabBar/TabBar";
+import { Header } from "../../components/Header/Header";
+import { QuillEditor } from "../../components/QuillEditor/QuillEditor";
+import { SaveLiveSheetModal } from "../../components/Modals/SaveLiveSheetModal";
+import { ConflictResolutionModal } from "../../components/Modals/ConflictResolutionModal";
+import { ArchivedPreviewModal } from "../../components/Modals/ArchivedPreviewModal";
+import { ToastContainer } from "../../components/Toast/ToastContainer";
+import WorkspaceLandingPage from "../WorkspaceLandingPage/WorkspaceLandingPage";
+import WorkspaceInviteModal from "../../components/Modals/WorkspaceInviteModal";
+import { useDashboardPage } from "./useDashboardPage";
+import { HEADINGS } from "../../constants/headings";
+import "./DashboardPage.css";
 
 export default function DashboardPage() {
   const {
@@ -56,7 +58,41 @@ export default function DashboardPage() {
     activeSavedTab,
     isLiveLocked,
     handleTakeControl,
+    workspaces,
+    loadingWorkspaces,
+    activeWorkspaceId,
+    setActiveWorkspaceId,
+    showInviteModal,
+    setShowInviteModal,
+    inviteUsername,
+    setInviteUsername,
+    workspaceMembers,
+    handleInviteMember,
+    isMaintainer,
+    isAdmin,
   } = useDashboardPage();
+
+  if (loadingWorkspaces) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          height: "100vh",
+          width: "100vw",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#000000",
+          color: "var(--text-muted)",
+        }}
+      >
+        Loading workspaces...
+      </div>
+    );
+  }
+
+  if (workspaces.length === 0 && !isAdmin) {
+    return <WorkspaceLandingPage />;
+  }
 
   return (
     <div className="app-container">
@@ -68,8 +104,8 @@ export default function DashboardPage() {
         activeSheet={activeSheet}
         onCreateCategory={handleCreateCategory}
         onSaveLiveSheet={() => {
-          setSaveTitle(activeSheet?.title || '');
-          setSaveType('saved');
+          setSaveTitle(activeSheet?.title || "");
+          setSaveType("saved");
           setShowSaveModal(true);
         }}
         onDeleteLiveSheet={handleDeleteLiveSheet}
@@ -78,6 +114,13 @@ export default function DashboardPage() {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         activeTabId={activeTabId}
+        workspaces={workspaces}
+        activeWorkspaceId={activeWorkspaceId}
+        setActiveWorkspaceId={setActiveWorkspaceId}
+        isMaintainer={isMaintainer}
+        setShowInviteModal={setShowInviteModal}
+        isAdmin={isAdmin}
+        setActiveTabId={setActiveTabId}
       />
 
       {/* Main Workspace */}
@@ -109,7 +152,7 @@ export default function DashboardPage() {
         />
 
         {/* Content Editor */}
-        {activeTabId === 'live' ? (
+        {activeTabId === "live" ? (
           activeSheet ? (
             <div className="editor-container">
               <QuillEditor
@@ -124,10 +167,10 @@ export default function DashboardPage() {
             <div
               style={{
                 flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--text-muted)',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--text-muted)",
               }}
             >
               {HEADINGS.DASHBOARD.INITIALIZING_LIVE}
@@ -146,10 +189,10 @@ export default function DashboardPage() {
           <div
             style={{
               flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--text-muted)',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--text-muted)",
             }}
           >
             {HEADINGS.DASHBOARD.SELECT_TAB_PROMPT}
@@ -186,6 +229,17 @@ export default function DashboardPage() {
         setPreviewArchivedSheet={setPreviewArchivedSheet}
         handleLoadArchivedToLive={handleLoadArchivedToLive}
         handleDeleteArchivedSheet={handleDeleteArchivedSheet}
+      />
+
+      {/* Workspace Invitation Modal */}
+      <WorkspaceInviteModal
+        showInviteModal={showInviteModal}
+        setShowInviteModal={setShowInviteModal}
+        inviteUsername={inviteUsername}
+        setInviteUsername={setInviteUsername}
+        members={workspaceMembers}
+        handleInviteMember={handleInviteMember}
+        isMaintainer={isMaintainer}
       />
 
       {/* Toast Notification Container */}

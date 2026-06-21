@@ -122,3 +122,26 @@
     left: 0;
   }
 }
+
+/* Workspace Selector Dropdown */
+.workspace-selector-container {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.workspace-selector-container select.select-type {
+  flex: 1;
+  height: 30px;
+  font-size: 12px;
+  width: 100%;
+}
+
+.workspace-selector-container button.btn {
+  height: 30px;
+  padding: 0 8px;
+  font-size: 11px;
+  border-color: var(--border-focus);
+}
