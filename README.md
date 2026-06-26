@@ -75,8 +75,7 @@ SyncPad provides workspace-scoped live clipboards where teams can collaborate in
 
 ### Key Interactions & UX Highlights
 
-- **Startup Health Shield**: Blocks UI routing on launch and presents a glassmorphic maintenance banner if the SQLite database is down or unhealthy.
-- **Glassmorphic Cards**: Features sleek dark-themed UI panels with translucent background backdrops, subtle borders, and glowing radial gradients.
+- **Startup Health Shield**: Blocks UI routing on launch and presents a maintenance banner if the SQLite database is down or unhealthy.
 - **Micro-Animations**: Uses rotating gear SVG animations and pulsing badges to indicate lock status and load-state transitions.
 - **Autofocus Fixers**: Synchronizes remote DOM updates using reference keys, preserving scroll state and cursor selections when remote edits are applied.
 
