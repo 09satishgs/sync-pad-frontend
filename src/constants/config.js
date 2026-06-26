@@ -4,6 +4,7 @@ export const API_BASE_URL = `${BASE_URL}/api`;
 export const WS_URL = import.meta.env.VITE_WS_URL || BASE_URL;
 
 export const ENDPOINTS = {
+  HEALTH: "/db/health",
   AUTH: {
     SESSION: "/auth/session",
     LOGIN: "/auth/login",

@@ -1,0 +1,132 @@
+.maintenance-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0b0b0f;
+  color: var(--text-color);
+  font-family: 'Outfit', 'Inter', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.maintenance-bg-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(235, 94, 40, 0.08) 0%, rgba(0, 0, 0, 0) 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.maintenance-card {
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 48px;
+  border-radius: 24px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.maintenance-icon-wrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(235, 94, 40, 0.08);
+  border-radius: 50%;
+  border: 1px solid rgba(235, 94, 40, 0.2);
+  margin-bottom: 8px;
+}
+
+.maintenance-icon-gear {
+  width: 42px;
+  height: 42px;
+  fill: #eb5e28;
+  animation: spin 8s linear infinite;
+}
+
+.maintenance-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #f8f9fa;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.maintenance-text {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.maintenance-time-box {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  padding: 16px 24px;
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.maintenance-time-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.maintenance-time-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #eb5e28;
+  letter-spacing: 0.5px;
+}
+
+.maintenance-retry-btn {
+  margin-top: 16px;
+  height: 40px;
+  padding: 0 24px;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8f9fa;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.maintenance-retry-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
