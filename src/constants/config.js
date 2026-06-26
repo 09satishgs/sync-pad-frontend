@@ -1,4 +1,5 @@
-export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+export const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/syncpad";
 export const API_BASE_URL = `${BASE_URL}/api`;
 export const WS_URL = import.meta.env.VITE_WS_URL || BASE_URL;
 
@@ -8,6 +9,7 @@ export const ENDPOINTS = {
     LOGIN: "/auth/login",
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
+    REFRESH: "/auth/session/refresh",
   },
   WORKSPACES: {
     LIST: "/workspaces",
@@ -24,6 +26,12 @@ export const ENDPOINTS = {
     DELETE_LIVE: (wsId) => `/workspaces/${wsId}/sheets/delete-live`,
     SAVED_DETAIL: (wsId, id) => `/workspaces/${wsId}/sheets/saved/${id}`,
     LOAD: (wsId, id) => `/workspaces/${wsId}/sheets/load/${id}`,
+  },
+  FILES: {
+    LIST: (wsId) => `/workspaces/${wsId}/files`,
+    UPLOAD: (wsId) => `/workspaces/${wsId}/files`,
+    DOWNLOAD: (wsId, fileId) => `/workspaces/${wsId}/files/${fileId}/download`,
+    DELETE: (wsId, fileId) => `/workspaces/${wsId}/files/${fileId}`,
   },
   ADMIN: {
     TABLES: "/admin/db/tables",

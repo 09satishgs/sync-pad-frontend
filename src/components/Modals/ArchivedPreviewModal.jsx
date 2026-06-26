@@ -1,6 +1,6 @@
-import React from 'react';
-import { HEADINGS } from '../../constants/headings';
-import './Modals.css';
+import React from "react";
+import { HEADINGS } from "../../constants/headings";
+import "./Modals.css";
 
 export const ArchivedPreviewModal = ({
   previewArchivedSheet,
@@ -12,47 +12,57 @@ export const ArchivedPreviewModal = ({
 
   const content = HEADINGS.MODALS.ARCHIVE;
 
+  console.log("previewArchivedSheet", previewArchivedSheet);
   return (
-    <div className="modal-overlay" onClick={() => setPreviewArchivedSheet(null)}>
+    <div
+      className="modal-overlay"
+      onClick={() => setPreviewArchivedSheet(null)}
+    >
       <div
         className="modal"
-        style={{ width: '500px' }}
+        style={{ width: "500px" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-title">{content.TITLE}</div>
-        <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>
+        <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "8px" }}>
           {content.TITLE_LABEL} {previewArchivedSheet.title}
         </div>
 
         <div
           style={{
-            width: '100%',
-            border: '1px solid var(--border-color)',
-            borderRadius: '2px',
-            backgroundColor: 'var(--bg-color)',
-            overflow: 'hidden',
+            width: "100%",
+            border: "1px solid var(--border-color)",
+            borderRadius: "2px",
+            backgroundColor: "var(--bg-color)",
+            overflow: "hidden",
           }}
         >
           <div
             className="ql-editor"
             style={{
-              width: '100%',
-              height: '220px',
-              overflowY: 'auto',
-              padding: '12px',
-              background: 'var(--bg-color)',
+              width: "100%",
+              height: "220px",
+              overflowY: "auto",
+              padding: "12px",
+              background: "var(--bg-color)",
+              display: previewArchivedSheet.loading ? "flex" : "block",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "var(--text-muted)",
+              fontSize: "13px",
             }}
-            dangerouslySetInnerHTML={{
-              __html: previewArchivedSheet.content || '',
-            }}
-          />
+          >
+            {previewArchivedSheet.loading
+              ? "Loading content from disk archive..."
+              : previewArchivedSheet.content}
+          </div>
         </div>
 
         <p
           style={{
-            fontSize: '11px',
-            color: 'var(--text-muted)',
-            marginTop: '4px',
+            fontSize: "11px",
+            color: "var(--text-muted)",
+            marginTop: "4px",
           }}
         >
           {content.INSTRUCTION}
@@ -61,10 +71,10 @@ export const ArchivedPreviewModal = ({
         <div
           className="modal-actions"
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '6px',
-            marginTop: '12px',
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+            marginTop: "12px",
           }}
         >
           <button
@@ -74,7 +84,7 @@ export const ArchivedPreviewModal = ({
           >
             ⚡ Load into Live Workspace to Edit
           </button>
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ display: "flex", gap: "6px" }}>
             <button
               type="button"
               className="btn btn-danger"

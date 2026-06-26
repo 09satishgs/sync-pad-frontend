@@ -145,3 +145,40 @@
   font-size: 11px;
   border-color: var(--border-focus);
 }
+
+/* Workspace Drive / Files styling */
+.file-dropzone {
+  border: 1px dashed var(--border-color);
+  border-radius: 4px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.01);
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.file-dropzone:hover {
+  border-color: var(--border-focus) !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: var(--text-color) !important;
+}
+
+.file-dropzone.uploading {
+  border-color: var(--accent-color) !important;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: var(--accent-color) !important;
+}
+
+.drive-file-item {
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.drive-file-item:hover {
+  border-color: var(--border-focus) !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}

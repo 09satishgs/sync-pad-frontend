@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api';
-import { ENDPOINTS } from '../constants/config';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import api from "../api";
+import { ENDPOINTS } from "../constants/config";
 
 const AuthContext = createContext(null);
 
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user);
       return res.data;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
+      const msg = err.response?.data?.message || "Login failed";
       setError(msg);
       throw new Error(msg);
     }
@@ -43,10 +43,13 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, password) => {
     try {
       setError(null);
-      const res = await api.post(ENDPOINTS.AUTH.REGISTER, { username, password });
+      const res = await api.post(ENDPOINTS.AUTH.REGISTER, {
+        username,
+        password,
+      });
       return res.data;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Registration failed';
+      const msg = err.response?.data?.message || "Registration failed";
       setError(msg);
       throw new Error(msg);
     }
@@ -57,12 +60,36 @@ export const AuthProvider = ({ children }) => {
       await api.post(ENDPOINTS.AUTH.LOGOUT);
       setUser(null);
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.error("Logout failed:", err);
+    }
+  };
+
+  const refreshSession = async () => {
+    try {
+      setError(null);
+      const res = await api.post(ENDPOINTS.AUTH.REFRESH);
+      setUser(res.data.user);
+      return res.data.user;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Session refresh failed";
+      console.error("Session refresh failed:", msg);
+      throw new Error(msg);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout, checkSession }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        login,
+        register,
+        logout,
+        checkSession,
+        refreshSession,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -71,7 +98,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

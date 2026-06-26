@@ -1,9 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import './QuillEditor.css';
+import React, { useEffect, useRef } from "react";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
+import "./QuillEditor.css";
 
-export const QuillEditor = ({ content, onChange, remoteTrigger, sheetId, readOnly = false }) => {
+export const QuillEditor = ({
+  content,
+  onChange,
+  remoteTrigger,
+  sheetId,
+  readOnly = false,
+}) => {
   const quillRef = useRef(null);
   const lastTriggerRef = useRef(remoteTrigger);
   const lastSheetIdRef = useRef(sheetId);
@@ -14,7 +20,7 @@ export const QuillEditor = ({ content, onChange, remoteTrigger, sheetId, readOnl
     const editor = quillRef.current.getEditor();
 
     // Set initial content and update refs
-    editor.root.innerHTML = content || '';
+    editor.root.innerHTML = content || "";
     lastSheetIdRef.current = sheetId;
     lastTriggerRef.current = remoteTrigger;
   }, [sheetId]);
@@ -46,30 +52,37 @@ export const QuillEditor = ({ content, onChange, remoteTrigger, sheetId, readOnl
 
   const handleTextChange = (value, delta, source) => {
     // Only trigger change events from user interactions to prevent infinite loop
-    if (source === 'user') {
+    if (source === "user") {
       onChange(value);
     }
   };
 
   const modules = {
     toolbar: [
-      ['bold', 'italic', 'underline'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['clean'],
+      ["bold", "italic", "underline"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["clean"],
     ],
   };
 
-  const formats = ['bold', 'italic', 'underline', 'list', 'bullet', 'code-block'];
+  const formats = [
+    "bold",
+    "italic",
+    "underline",
+    "list",
+    "bullet",
+    "code-block",
+  ];
 
   return (
-    <div className={`quill-wrapper ${readOnly ? 'read-only' : ''}`}>
+    <div className={`quill-wrapper ${readOnly ? "read-only" : ""}`}>
       <ReactQuill
         ref={quillRef}
         theme="snow"
         onChange={handleTextChange}
         modules={modules}
         formats={formats}
-        placeholder={readOnly ? 'Viewing read-only live clipboard...' : 'Type your notes here...'}
+        placeholder={readOnly ? "" : "Type your notes here..."}
         readOnly={readOnly}
       />
     </div>

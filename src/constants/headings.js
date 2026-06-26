@@ -34,6 +34,11 @@ export const HEADINGS = {
     EMPTY_FOLDER: "Empty",
     ACTIVE_USER: "Active User",
     LOGOUT_BTN: "Logout",
+    SYNC_ROLES_BTN: "🔄",
+    FILES_TITLE: "Workspace Drive",
+    NO_FILES: "No files shared.",
+    UPLOAD_DRAG_PROMPT: "Drag & drop files here or click to browse",
+    UPLOADING: "Uploading...",
   },
   MODALS: {
     SAVE_LIVE: {

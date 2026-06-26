@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useSidebar } from "./useSidebar";
 import { HEADINGS } from "../../constants/headings";
+import { API_BASE_URL } from "../../constants/config";
 import "./Sidebar.css";
 
 export const Sidebar = ({
@@ -24,9 +25,16 @@ export const Sidebar = ({
   isMaintainer,
   setShowInviteModal,
   isAdmin,
+  onCreateSheetInCategory,
+  files = [],
+  loadingFiles = false,
+  uploadingFile = false,
+  onUploadFile,
+  onDeleteFile,
 }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshSession } = useAuth();
   const navigate = useNavigate();
+  const [driveExpanded, setDriveExpanded] = useState(true);
   const {
     newCatName,
     setNewCatName,
@@ -140,8 +148,38 @@ export const Sidebar = ({
         </div>
 
         {/* Saved Folders / Categories */}
-        <div className="sidebar-section-title">
-          {HEADINGS.SIDEBAR.SAVED_SHEETS_TITLE}
+        <div
+          className="sidebar-section-title"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span>{HEADINGS.SIDEBAR.SAVED_SHEETS_TITLE}</span>
+          <button
+            type="button"
+            className="btn"
+            style={{
+              padding: "0 4px",
+              height: "16px",
+              fontSize: "10px",
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+              color: "var(--text-muted)",
+              lineHeight: "1",
+            }}
+            onClick={() => {
+              const title = prompt("Create new sheet:");
+              if (title && title.trim()) {
+                onCreateSheetInCategory(title.trim(), null);
+              }
+            }}
+            title="Create new sheet"
+          >
+            ➕
+          </button>
         </div>
 
         {/* Create Category Trigger */}
@@ -203,9 +241,44 @@ export const Sidebar = ({
                 <div
                   className="category-header"
                   onClick={() => toggleCategory(cat.id)}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
                 >
-                  <span>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
                     📁 {cat.name} ({catSheets.length})
+                    <button
+                      type="button"
+                      className="btn"
+                      style={{
+                        padding: "0 4px",
+                        height: "16px",
+                        fontSize: "10px",
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const title = prompt(
+                          `Create new sheet inside "${cat.name}":`,
+                        );
+                        if (title && title.trim()) {
+                          onCreateSheetInCategory(title.trim(), cat.id);
+                        }
+                      }}
+                      title="Create new sheet in category"
+                    >
+                      ➕
+                    </button>
                   </span>
                   <span>{isExpanded ? "▼" : "▶"}</span>
                 </div>
@@ -280,6 +353,196 @@ export const Sidebar = ({
             )}
           </div>
         </div>
+
+        {/* Workspace Drive Collapsible Section */}
+        <div
+          className="sidebar-section-title"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+          onClick={() => setDriveExpanded(!driveExpanded)}
+        >
+          <span>📁 {HEADINGS.SIDEBAR.FILES_TITLE}</span>
+          <span>{driveExpanded ? "▼" : "▶"}</span>
+        </div>
+
+        {driveExpanded && (
+          <div className="drive-container" style={{ padding: "0 8px 8px 8px" }}>
+            {/* File Drag-and-Drop Area & Button */}
+            <div
+              className={`file-dropzone ${uploadingFile ? "uploading" : ""}`}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (uploadingFile) return;
+                const file = e.dataTransfer.files[0];
+                if (file) onUploadFile(file);
+              }}
+              onClick={() => {
+                if (uploadingFile) return;
+                const fileInput = document.getElementById("drive-file-input");
+                if (fileInput) fileInput.click();
+              }}
+              style={{
+                border: "1px dashed var(--border-color)",
+                borderRadius: "4px",
+                padding: "12px",
+                textAlign: "center",
+                cursor: "pointer",
+                backgroundColor: "rgba(255, 255, 255, 0.01)",
+                fontSize: "11px",
+                color: "var(--text-muted)",
+                transition: "all 0.2s ease",
+                marginBottom: "8px",
+              }}
+            >
+              <input
+                id="drive-file-input"
+                type="file"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) onUploadFile(file);
+                }}
+              />
+              {uploadingFile ? (
+                <span>🔄 {HEADINGS.SIDEBAR.UPLOADING}</span>
+              ) : (
+                <span>📥 {HEADINGS.SIDEBAR.UPLOAD_DRAG_PROMPT}</span>
+              )}
+            </div>
+
+            {/* Files List */}
+            {loadingFiles ? (
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "var(--text-muted)",
+                  padding: "4px",
+                }}
+              >
+                Loading files...
+              </div>
+            ) : files.length === 0 ? (
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "var(--text-muted)",
+                  padding: "4px",
+                }}
+              >
+                {HEADINGS.SIDEBAR.NO_FILES}
+              </div>
+            ) : (
+              <div
+                className="drive-files-list"
+                style={{ display: "flex", flexDirection: "column", gap: "6px" }}
+              >
+                {files.map((file) => {
+                  // Format file size cleanly
+                  const sizeKB = (file.size_bytes / 1024).toFixed(1);
+                  const displaySize =
+                    sizeKB > 1024
+                      ? `${(sizeKB / 1024).toFixed(1)} MB`
+                      : `${sizeKB} KB`;
+
+                  // Format date cleanly
+                  const uploadDate = new Date(
+                    file.created_at,
+                  ).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  });
+
+                  return (
+                    <div
+                      key={file.id}
+                      className="drive-file-item"
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "6px 8px",
+                        border: "1px solid var(--border-color)",
+                        backgroundColor: "var(--bg-card)",
+                        fontSize: "12px",
+                        borderRadius: "2px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "2px",
+                          overflow: "hidden",
+                          flex: 1,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontWeight: 500,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                          title={file.original_name}
+                        >
+                          📄 {file.original_name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: "var(--text-muted)",
+                          }}
+                        >
+                          {displaySize} • {file.uploader_username || "Unknown"}{" "}
+                          • {uploadDate}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button
+                          type="button"
+                          className="btn"
+                          style={{
+                            padding: "0 6px",
+                            height: "22px",
+                            fontSize: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            // Fetch file download stream
+                            const downloadUrl = `${API_BASE_URL}/workspaces/${activeWorkspaceId}/files/${file.id}/download`;
+                            window.open(downloadUrl, "_blank");
+                          }}
+                          title="Download file"
+                        >
+                          ⬇️
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          style={{
+                            padding: "0 6px",
+                            height: "22px",
+                            fontSize: "10px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => onDeleteFile(file.id)}
+                          title="Delete file"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Archived Sheets Section */}
         <div className="sidebar-section-title">
@@ -357,8 +620,41 @@ export const Sidebar = ({
               maxWidth: "140px",
             }}
           >
-            <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>
+            <span
+              style={{
+                color: "var(--text-muted)",
+                fontSize: "11px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
               {HEADINGS.SIDEBAR.ACTIVE_USER}
+              <button
+                type="button"
+                className="btn"
+                style={{
+                  padding: "0 4px",
+                  height: "16px",
+                  fontSize: "10px",
+                  lineHeight: "1",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+                onClick={async () => {
+                  try {
+                    await refreshSession();
+                    alert("Roles and session metadata refreshed successfully.");
+                    window.location.reload();
+                  } catch (err) {
+                    alert("Session refresh failed: " + err.message);
+                  }
+                }}
+                title="Sync/Refresh roles"
+              >
+                {HEADINGS.SIDEBAR.SYNC_ROLES_BTN}
+              </button>
             </span>
             <div style={{ fontWeight: 600 }}>{user?.username}</div>
           </div>

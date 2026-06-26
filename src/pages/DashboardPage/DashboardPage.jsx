@@ -40,8 +40,8 @@ export default function DashboardPage() {
     setPreviewArchivedSheet,
     setConflictData,
     handleContentChange,
-    handleFormatJson,
     handleCreateCategory,
+    handleCreateSheetInCategory,
     handleSaveLiveSheet,
     handleDeleteLiveSheet,
     handleOpenSavedSheet,
@@ -70,6 +70,12 @@ export default function DashboardPage() {
     handleInviteMember,
     isMaintainer,
     isAdmin,
+    files,
+    loadingFiles,
+    uploadingFile,
+    handleUploadFile,
+    handleDeleteFile,
+    handleOpenArchivedSheet,
   } = useDashboardPage();
 
   if (loadingWorkspaces) {
@@ -103,6 +109,7 @@ export default function DashboardPage() {
         archivedSheets={archivedSheets}
         activeSheet={activeSheet}
         onCreateCategory={handleCreateCategory}
+        onCreateSheetInCategory={handleCreateSheetInCategory}
         onSaveLiveSheet={() => {
           setSaveTitle(activeSheet?.title || "");
           setSaveType("saved");
@@ -110,7 +117,7 @@ export default function DashboardPage() {
         }}
         onDeleteLiveSheet={handleDeleteLiveSheet}
         onOpenSavedSheet={handleOpenSavedSheet}
-        onOpenArchivedSheet={setPreviewArchivedSheet}
+        onOpenArchivedSheet={handleOpenArchivedSheet}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         activeTabId={activeTabId}
@@ -121,6 +128,11 @@ export default function DashboardPage() {
         setShowInviteModal={setShowInviteModal}
         isAdmin={isAdmin}
         setActiveTabId={setActiveTabId}
+        files={files}
+        loadingFiles={loadingFiles}
+        uploadingFile={uploadingFile}
+        onUploadFile={handleUploadFile}
+        onDeleteFile={handleDeleteFile}
       />
 
       {/* Main Workspace */}
@@ -146,7 +158,6 @@ export default function DashboardPage() {
           handleRefreshSavedSheet={handleRefreshSavedSheet}
           handleSaveSavedSheet={handleSaveSavedSheet}
           handleDeleteSavedSheetFromTab={handleDeleteSavedSheetFromTab}
-          handleFormatJson={handleFormatJson}
           isLiveLocked={isLiveLocked}
           handleTakeControl={handleTakeControl}
         />

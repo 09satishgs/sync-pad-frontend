@@ -5,34 +5,29 @@ import { ENDPOINTS } from "../../constants/config";
 import { useAuth } from "../../hooks/useAuth";
 import { useSocket } from "../../hooks/useSocket";
 
-// Loose JS Object key-value quoting formatter
-const makeValidJsonString = (str) => {
-  if (!str.trim()) return "";
-  let clean = str;
-
-  // 1. Replace single-quoted keys: 'key': -> "key":
-  clean = clean.replace(/([{,\s])'([a-zA-Z0-9_$]+)'\s*:/g, '$1"$2":');
-
-  // 2. Quote unquoted keys: key: -> "key":
-  clean = clean.replace(/([{,\s])([a-zA-Z0-9_$]+)\s*:/g, (match, p1, p2) => {
-    if (p2 === "true" || p2 === "false" || p2 === "null") {
-      return match;
-    }
-    return p1 + '"' + p2 + '":';
-  });
-
-  // 3. Replace single-quoted string values: 'value' -> "value"
-  clean = clean.replace(/:\s*'([^']*)'/g, ': "$1"');
-  clean = clean.replace(/,\s*'([^']*)'/g, ', "$1"');
-  clean = clean.replace(/\[\s*'([^']*)'/g, '[ "$1"');
-  clean = clean.replace(/,\s*'([^']*)'/g, ', "$1"'); // Second pass
-
-  return clean;
-};
-
 export const useDashboardPage = () => {
   const { user } = useAuth();
   const socket = useSocket();
+
+  const [socketId, setSocketId] = useState(null);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleConnect = () => setSocketId(socket.id);
+    const handleDisconnect = () => setSocketId(null);
+
+    if (socket.connected) {
+      setSocketId(socket.id);
+    } else {
+      setSocketId(null);
+    }
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, [socket]);
 
   // Workspace States
   const [workspaces, setWorkspaces] = useState([]);
@@ -47,6 +42,9 @@ export const useDashboardPage = () => {
   const [categories, setCategories] = useState([]);
   const [savedSheets, setSavedSheets] = useState([]);
   const [archivedSheets, setArchivedSheets] = useState([]);
+  const [files, setFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   // Parallel Workspace Tabs States
   const [openTabs, setOpenTabs] = useState([]); // [{ id, title, content, originalContent, category_id, loadedAt, isDirty }]
@@ -97,21 +95,27 @@ export const useDashboardPage = () => {
   const loadWorkspace = async (workspaceId, signal) => {
     if (!workspaceId) return;
     try {
-      const [liveRes, catRes, savedRes, archivedRes] = await Promise.all([
-        api.get(ENDPOINTS.SHEETS.LIVE(workspaceId), { signal }),
-        api.get(ENDPOINTS.SHEETS.CATEGORIES(workspaceId), { signal }),
-        api.get(ENDPOINTS.SHEETS.SAVED(workspaceId), { signal }),
-        api.get(ENDPOINTS.SHEETS.ARCHIVED(workspaceId), { signal }),
-      ]);
+      setLoadingFiles(true);
+      const [liveRes, catRes, savedRes, archivedRes, filesRes] =
+        await Promise.all([
+          api.get(ENDPOINTS.SHEETS.LIVE(workspaceId), { signal }),
+          api.get(ENDPOINTS.SHEETS.CATEGORIES(workspaceId), { signal }),
+          api.get(ENDPOINTS.SHEETS.SAVED(workspaceId), { signal }),
+          api.get(ENDPOINTS.SHEETS.ARCHIVED(workspaceId), { signal }),
+          api.get(ENDPOINTS.FILES.LIST(workspaceId), { signal }),
+        ]);
       setActiveSheet(liveRes.data);
       setCategories(catRes.data);
       setSavedSheets(savedRes.data);
       setArchivedSheets(archivedRes.data);
+      setFiles(filesRes.data);
     } catch (err) {
       if (!axios.isCancel(err) && err.name !== "CanceledError") {
         console.error("Failed to load workspace data:", err);
         addToast("Failed to load workspace data.", "error");
       }
+    } finally {
+      setLoadingFiles(false);
     }
   };
 
@@ -225,13 +229,20 @@ export const useDashboardPage = () => {
     if (!socket || !activeSheet || !activeWorkspaceId) return;
 
     // Notify the server which sheet we are viewing (passes username, and tab change will trigger lock transfer)
-    const targetSheetId = activeTabId === "live" ? activeSheet.id : activeTabId;
-    if (targetSheetId) {
-      socket.emit("client_viewing_sheet", {
-        sheetId: targetSheetId,
-        username: user?.username,
-      });
+    const registerViewing = () => {
+      const targetSheetId = activeTabId === "live" ? activeSheet.id : activeTabId;
+      if (targetSheetId) {
+        socket.emit("client_viewing_sheet", {
+          sheetId: targetSheetId,
+          username: user?.username,
+        });
+      }
+    };
+
+    if (socket.connected) {
+      registerViewing();
     }
+    socket.on("connect", registerViewing);
 
     // Listen for lock status updates
     socket.on("sheet_lock_status", (data) => {
@@ -265,7 +276,7 @@ export const useDashboardPage = () => {
         .then((res) => setArchivedSheets(res.data));
     });
 
-    // Listen for general lists update signals (saved sheets, categories created/deleted)
+    // Listen for general lists update signals (saved sheets, categories created/deleted, files uploaded/deleted)
     socket.on("sheets_list_updated", () => {
       api
         .get(ENDPOINTS.SHEETS.SAVED(activeWorkspaceId))
@@ -276,9 +287,14 @@ export const useDashboardPage = () => {
       api
         .get(ENDPOINTS.SHEETS.CATEGORIES(activeWorkspaceId))
         .then((res) => setCategories(res.data));
+      api
+        .get(ENDPOINTS.FILES.LIST(activeWorkspaceId))
+        .then((res) => setFiles(res.data))
+        .catch((err) => console.error("Socket files update error:", err));
     });
 
     return () => {
+      socket.off("connect", registerViewing);
       socket.off("server_sheet_content_updated");
       socket.off("server_sheet_background_updated");
       socket.off("live_sheet_archived");
@@ -344,50 +360,6 @@ export const useDashboardPage = () => {
 
   const activeSavedTab = openTabs.find((t) => t.id === activeTabId);
 
-  // Clean and Format document contents as JSON
-  const handleFormatJson = () => {
-    const content =
-      activeTabId === "live" ? activeSheet?.content : activeSavedTab?.content;
-    if (!content) {
-      addToast("No content to format.", "warning");
-      return;
-    }
-
-    // Convert HTML blocks/paragraphs to plain text
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
-    const plainText = tempDiv.textContent || tempDiv.innerText || "";
-
-    // Replace all non-breaking spaces with standard spaces to avoid JSON parsing issues
-    const cleanText = plainText.replace(/\u00a0/g, " ");
-
-    try {
-      const cleaned = makeValidJsonString(cleanText);
-      const parsed = JSON.parse(cleaned);
-      const formattedJson = JSON.stringify(parsed, null, 2);
-
-      // Format as paragraph blocks with spaces replaced by &nbsp; to prevent collapsing
-      const htmlValue = formattedJson
-        .split("\n")
-        .map((line) => {
-          const escaped = line
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/ /g, "&nbsp;");
-          return `<p>${escaped || "<br>"}</p>`;
-        })
-        .join("");
-
-      handleContentChange(htmlValue);
-      setRemoteTrigger((prev) => prev + 1); // Reset local editor innerHTML DOM values
-      addToast("JSON formatted successfully.", "success");
-    } catch (err) {
-      addToast(`Invalid JSON: ${err.message}`, "error");
-    }
-  };
-
   // Create Category Request
   const handleCreateCategory = async (name) => {
     if (!activeWorkspaceId) return;
@@ -395,9 +367,47 @@ export const useDashboardPage = () => {
       await api.post(ENDPOINTS.SHEETS.CATEGORIES(activeWorkspaceId), { name });
       if (socket) socket.emit("client_sheets_list_modified");
       addToast(`Category "${name}" created.`, "success");
+      // Immediate local reload
+      const catRes = await api.get(
+        ENDPOINTS.SHEETS.CATEGORIES(activeWorkspaceId),
+      );
+      setCategories(catRes.data);
     } catch (err) {
       addToast(
         err.response?.data?.message || "Failed to create category",
+        "error",
+      );
+    }
+  };
+
+  // Create Saved Sheet Directly in Category
+  const handleCreateSheetInCategory = async (title, categoryId) => {
+    if (!activeWorkspaceId || !title.trim()) return;
+    try {
+      const res = await api.post(ENDPOINTS.SHEETS.SAVED(activeWorkspaceId), {
+        title: title.trim(),
+        category_id: categoryId || null,
+      });
+
+      // Refresh saved sheets lists
+      const savedRes = await api.get(ENDPOINTS.SHEETS.SAVED(activeWorkspaceId));
+      setSavedSheets(savedRes.data);
+
+      if (socket) socket.emit("client_sheets_list_modified");
+      addToast(`Sheet "${title}" created successfully.`, "success");
+
+      // Auto-open new sheet in tab
+      const newSheet =
+        savedRes.data.find(
+          (s) => s.title === title.trim() && s.category_id === categoryId,
+        ) || res.data;
+      if (newSheet) {
+        handleOpenSavedSheet(newSheet);
+      }
+    } catch (err) {
+      console.error("Failed to create sheet in category:", err);
+      addToast(
+        err.response?.data?.message || "Failed to create sheet",
         "error",
       );
     }
@@ -413,10 +423,31 @@ export const useDashboardPage = () => {
         saveType === "archived"
           ? ENDPOINTS.SHEETS.ARCHIVE_LIVE(activeWorkspaceId)
           : ENDPOINTS.SHEETS.SAVE_LIVE(activeWorkspaceId);
-      const res = await api.post(endpoint, {
-        title: saveTitle.trim(),
-        category_id: saveCatId === "" ? null : Number(saveCatId),
-      });
+
+      let res;
+      if (saveType === "archived") {
+        const fileContent = activeSheet?.content || "";
+        const textBlob = new Blob([fileContent], { type: "text/plain" });
+        const textFile = new File([textBlob], `${saveTitle.trim()}.txt`, {
+          type: "text/plain",
+        });
+
+        const formData = new FormData();
+        formData.append("title", saveTitle.trim());
+        if (saveCatId !== "") {
+          formData.append("category_id", Number(saveCatId));
+        }
+        formData.append("file", textFile);
+
+        res = await api.post(endpoint, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        res = await api.post(endpoint, {
+          title: saveTitle.trim(),
+          category_id: saveCatId === "" ? null : Number(saveCatId),
+        });
+      }
 
       // Load new live sheet and close modal
       setActiveSheet(res.data.newLiveSheet);
@@ -494,6 +525,21 @@ export const useDashboardPage = () => {
       setActiveTabId(sheet.id);
     }
     setSidebarOpen(false);
+  };
+
+  const handleOpenArchivedSheet = async (sheet) => {
+    if (!sheet) return;
+    setPreviewArchivedSheet({ ...sheet, loading: true });
+    try {
+      const res = await api.get(
+        ENDPOINTS.SHEETS.SAVED_DETAIL(activeWorkspaceId, sheet.id),
+      );
+      setPreviewArchivedSheet({ ...res.data, loading: false });
+    } catch (err) {
+      console.error("Failed to load archive content:", err);
+      addToast("Failed to load archive content.", "error");
+      setPreviewArchivedSheet(null);
+    }
   };
 
   const handleCloseTab = (tabId, e) => {
@@ -787,7 +833,7 @@ export const useDashboardPage = () => {
   const isLiveLocked =
     activeTabId === "live" &&
     sheetLock.isLocked &&
-    sheetLock.lockedBySocketId !== socket?.id;
+    sheetLock.lockedBySocketId !== socketId;
 
   const handleTakeControl = () => {
     if (socket && activeSheet) {
@@ -801,6 +847,57 @@ export const useDashboardPage = () => {
           username: user?.username,
         });
       }
+    }
+  };
+
+  // Fetch only files
+  const fetchFiles = async (workspaceId) => {
+    if (!workspaceId) return;
+    try {
+      setLoadingFiles(true);
+      const res = await api.get(ENDPOINTS.FILES.LIST(workspaceId));
+      setFiles(res.data);
+    } catch (err) {
+      console.error("Failed to fetch files:", err);
+    } finally {
+      setLoadingFiles(false);
+    }
+  };
+
+  // Upload file
+  const handleUploadFile = async (file) => {
+    if (!activeWorkspaceId) return;
+    setUploadingFile(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await api.post(ENDPOINTS.FILES.UPLOAD(activeWorkspaceId), formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      addToast(`File "${file.name}" uploaded successfully.`, "success");
+      await fetchFiles(activeWorkspaceId);
+      if (socket) socket.emit("client_sheets_list_modified");
+    } catch (err) {
+      console.error("File upload failed:", err);
+      addToast(err.response?.data?.message || "File upload failed.", "error");
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  // Delete file
+  const handleDeleteFile = async (fileId) => {
+    if (!activeWorkspaceId) return;
+    if (!confirm("Are you sure you want to delete this file?")) return;
+    try {
+      await api.delete(ENDPOINTS.FILES.DELETE(activeWorkspaceId, fileId));
+      addToast("File deleted successfully.", "success");
+      await fetchFiles(activeWorkspaceId);
+      if (socket) socket.emit("client_sheets_list_modified");
+    } catch (err) {
+      console.error("File deletion failed:", err);
+      addToast(err.response?.data?.message || "File deletion failed.", "error");
     }
   };
 
@@ -843,11 +940,12 @@ export const useDashboardPage = () => {
     setPreviewArchivedSheet,
     setConflictData,
     handleContentChange,
-    handleFormatJson,
     handleCreateCategory,
+    handleCreateSheetInCategory,
     handleSaveLiveSheet,
     handleDeleteLiveSheet,
     handleOpenSavedSheet,
+    handleOpenArchivedSheet,
     handleCloseTab,
     handleSaveSavedSheet,
     handleRefreshSavedSheet,
@@ -861,5 +959,10 @@ export const useDashboardPage = () => {
     activeSavedTab,
     sheetLock,
     handleTakeControl,
+    files,
+    loadingFiles,
+    uploadingFile,
+    handleUploadFile,
+    handleDeleteFile,
   };
 };

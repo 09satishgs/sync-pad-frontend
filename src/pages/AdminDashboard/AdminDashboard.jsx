@@ -8,7 +8,7 @@ import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout, refreshSession } = useAuth();
 
   const headings = HEADINGS.ADMIN;
   const [activeSubTab, setActiveSubTab] = useState("db_explorer");
@@ -157,6 +157,15 @@ export default function AdminDashboard() {
       setWorkspaceName("");
       fetchWorkspaces();
       fetchUsers(); // Roles updated in user list
+
+      // Refresh admin session if workspace creator is self
+      if (Number(workspaceCreatorId) === Number(user?.id)) {
+        try {
+          await refreshSession();
+        } catch (err) {
+          console.error("Auto-refresh admin session failed:", err);
+        }
+      }
     } catch (err) {
       setWsCreateError(
         err.response?.data?.message || "Failed to create workspace.",
@@ -182,6 +191,15 @@ export default function AdminDashboard() {
         res.data.message || "User added to workspace successfully!",
       );
       fetchUsers(); // Roles updated in user list
+
+      // Refresh admin session if workspace member is self
+      if (Number(memberUserId) === Number(user?.id)) {
+        try {
+          await refreshSession();
+        } catch (err) {
+          console.error("Auto-refresh admin session failed:", err);
+        }
+      }
     } catch (err) {
       setMemberError(
         err.response?.data?.message || "Failed to add workspace member.",
@@ -254,6 +272,16 @@ export default function AdminDashboard() {
       });
       setRolesSuccess(res.data.message || "User roles updated successfully!");
       fetchUsers(); // Refresh users list
+
+      // Refresh admin session if target user is self
+      if (Number(selectedUser.id) === Number(user?.id)) {
+        try {
+          await refreshSession();
+        } catch (err) {
+          console.error("Auto-refresh admin session failed:", err);
+        }
+      }
+
       // Refresh local editing details
       setSelectedUser(null);
     } catch (err) {

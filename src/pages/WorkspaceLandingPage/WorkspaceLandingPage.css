@@ -4,23 +4,31 @@
   width: 100vw;
   align-items: center;
   justify-content: center;
-  background-color: #000000;
+  background: radial-gradient(circle at center, #151515 0%, #000000 100%);
 }
 
 .landing-card {
-  width: 400px;
+  width: 420px;
+  max-width: 90%;
   border: 1px solid var(--border-color);
   background-color: var(--bg-sidebar);
-  padding: 32px;
+  padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 20px;
+  gap: 24px;
+  border-radius: 6px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.8);
+  transition: border-color 0.3s ease;
+}
+
+.landing-card:hover {
+  border-color: var(--border-focus);
 }
 
 .landing-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--accent-color);
@@ -30,14 +38,32 @@
   font-size: 13px;
   color: var(--text-muted);
   line-height: 1.6;
+  margin-bottom: 8px;
 }
 
 .landing-actions {
   width: 100%;
-  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
-.landing-logout-btn {
-  width: 100%;
+.landing-btn {
+  flex: 1;
   height: 38px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.landing-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.landing-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

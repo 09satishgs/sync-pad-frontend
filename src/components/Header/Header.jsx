@@ -14,7 +14,6 @@ export const Header = ({
   handleRefreshSavedSheet,
   handleSaveSavedSheet,
   handleDeleteSavedSheetFromTab,
-  handleFormatJson,
   isLiveLocked = false,
   handleTakeControl,
 }) => {
@@ -161,18 +160,6 @@ export const Header = ({
               </div>
             )
           )}
-        </div>
-
-        <div className="header-right">
-          <button
-            className="btn"
-            style={{ borderColor: 'var(--border-focus)' }}
-            onClick={handleFormatJson}
-            disabled={activeTabId === 'live' ? !activeSheet : !activeSavedTab}
-            title="Convert loose key-value pairs into formatted JSON text block"
-          >
-            Format as JSON
-          </button>
         </div>
       </div>
     </header>
