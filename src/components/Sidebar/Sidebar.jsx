@@ -85,9 +85,25 @@ export const Sidebar = ({
   };
 
   const handleCreateSheet = async () => {
-    const title = await customPrompt("Create new sheet:");
+    const title = await customPrompt(
+      "Enter Sheet name:",
+      "",
+      "Create new sheet",
+    );
     if (title && title.trim()) {
       onCreateSheetInCategory(title.trim(), null);
+    }
+  };
+
+  const handleCreateSheetInCategory = async (e) => {
+    e.stopPropagation();
+    const title = await customPrompt(
+      "Enter Category Name:",
+      "",
+      `Create new sheet inside "${cat.name}"`,
+    );
+    if (title && title.trim()) {
+      onCreateSheetInCategory(title.trim(), cat.id);
     }
   };
 
@@ -237,15 +253,7 @@ export const Sidebar = ({
                     <button
                       type="button"
                       className="btn category-add-sheet-btn"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        const title = await customPrompt(
-                          `Create new sheet inside "${cat.name}":`,
-                        );
-                        if (title && title.trim()) {
-                          onCreateSheetInCategory(title.trim(), cat.id);
-                        }
-                      }}
+                      onClick={handleCreateSheetInCategory}
                       title="Create new sheet in category"
                     >
                       <Plus size={12} />

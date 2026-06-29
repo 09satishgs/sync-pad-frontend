@@ -34,7 +34,11 @@ export const customConfirm = (message, title = "Confirmation") => {
   });
 };
 
-export const customPrompt = (message, defaultValue = "", title = "Prompt") => {
+export const customPrompt = (
+  message,
+  defaultValue = "",
+  title = "Enter the Value",
+) => {
   return new Promise((resolve) => {
     if (setDialogStateGlobal) {
       setDialogStateGlobal({
