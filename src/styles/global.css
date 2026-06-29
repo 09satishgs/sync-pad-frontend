@@ -167,3 +167,40 @@ textarea {
     font-size: 20px;
   }
 }
+
+/* Layout utility classes */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-align {
+  display: flex;
+  align-items: center;
+}
+
+.flex-gap-2 {
+  gap: 4px;
+}
+
+.flex-gap-3 {
+  gap: 6px;
+}
+
+.flex-gap-4 {
+  gap: 8px;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-dot-success {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--success-color);
+}

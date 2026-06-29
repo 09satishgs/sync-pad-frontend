@@ -1,4 +1,5 @@
 import React from 'react';
+import { Menu, Clock, Lock, RefreshCw } from 'lucide-react';
 import { HEADINGS } from '../../constants/headings';
 import './Header.css';
 
@@ -18,95 +19,59 @@ export const Header = ({
   handleTakeControl,
 }) => {
   return (
-    <header className="header" style={{ height: activeTabId === 'live' ? '56px' : '72px' }}>
-      <div
-        className="header-left"
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            flex: 1,
-          }}
-        >
-          <button className="btn hamburger-btn" onClick={() => setSidebarOpen(!sidebarOpen)}>
-            ☰
+    <header className={`header ${activeTabId === 'live' ? 'live-tab' : 'saved-tab'}`}>
+      <div className="header-left header-inner">
+        <div className="header-left-inner">
+          <button className="btn hamburger-btn flex-center" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <Menu size={18} />
           </button>
 
           {activeTabId === 'live' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span className="sheet-title-input" style={{ fontSize: '15px', fontWeight: 600 }}>
+            <div className="flex-align flex-gap-4">
+              <div className="flex-column">
+                <span className="sheet-title-input">
                   {activeSheet?.title || 'Loading...'}
                 </span>
                 {countdownText && (
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    ⏳ {countdownText} {HEADINGS.DASHBOARD.COUNTDOWN_SUFFIX}
+                  <span className="header-countdown">
+                    <Clock size={12} /> {countdownText} {HEADINGS.DASHBOARD.COUNTDOWN_SUFFIX}
                   </span>
                 )}
               </div>
 
               {isLiveLocked ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span
-                    className="badge badge-archived"
-                    style={{
-                      borderColor: 'var(--danger-color)',
-                      color: 'var(--danger-color)',
-                      backgroundColor: 'rgba(255, 51, 51, 0.05)',
-                    }}
-                  >
+                <div className="flex-align flex-gap-2">
+                  <span className="badge badge-archived-danger">
+                    <Lock size={12} />
                     {HEADINGS.DASHBOARD.READ_ONLY_BADGE}
                   </span>
                   <button
-                    className="btn btn-primary"
-                    style={{ height: '24px', fontSize: '10px', padding: '0 8px' }}
+                    className="btn btn-primary btn-take-control"
                     onClick={handleTakeControl}
                   >
                     {HEADINGS.DASHBOARD.TAKE_CONTROL_BTN}
                   </button>
                 </div>
               ) : (
-                <span className="badge badge-live">{HEADINGS.DASHBOARD.EDITING_BADGE}</span>
+                <span className="badge badge-live flex-align flex-gap-3">
+                  <span className="status-dot-success" />
+                  {HEADINGS.DASHBOARD.EDITING_BADGE}
+                </span>
               )}
             </div>
           ) : (
             activeSavedTab && (
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '8px',
-                  alignItems: 'center',
-                  flex: 1,
-                }}
-              >
+              <div className="header-editor-meta">
                 <input
                   type="text"
-                  className="input-field"
-                  style={{
-                    width: '160px',
-                    height: '28px',
-                    fontSize: '13px',
-                  }}
+                  className="input-field header-title-input"
                   value={activeSavedTab.title}
                   onChange={(e) =>
                     handleTabPropertiesChange(activeSavedTab.id, 'title', e.target.value)
                   }
                 />
                 <select
-                  className="select-type"
-                  style={{
-                    height: '28px',
-                    fontSize: '12px',
-                    padding: '0 24px 0 8px',
-                  }}
+                  className="select-type header-category-select"
                   value={activeSavedTab.category_id || ''}
                   onChange={(e) =>
                     handleTabPropertiesChange(
@@ -126,20 +91,14 @@ export const Header = ({
 
                 {!activeSavedTab.isDirty ? (
                   <button
-                    className="btn"
-                    style={{
-                      height: '28px',
-                      fontSize: '11px',
-                      borderColor: 'var(--border-focus)',
-                    }}
+                    className="btn header-refresh-btn"
                     onClick={() => handleRefreshSavedSheet(activeSavedTab.id)}
                   >
-                    🔄 Refresh
+                    <RefreshCw size={12} /> Refresh
                   </button>
                 ) : (
                   <button
-                    className="btn btn-primary"
-                    style={{ height: '28px', fontSize: '11px' }}
+                    className="btn btn-primary header-save-btn"
                     onClick={() => handleSaveSavedSheet(activeSavedTab.id)}
                   >
                     Save Edits *
@@ -147,12 +106,7 @@ export const Header = ({
                 )}
 
                 <button
-                  className="btn btn-danger"
-                  style={{
-                    height: '28px',
-                    fontSize: '11px',
-                    padding: '0 8px',
-                  }}
+                  className="btn btn-danger header-delete-btn"
                   onClick={() => handleDeleteSavedSheetFromTab(activeSavedTab.id)}
                 >
                   Delete

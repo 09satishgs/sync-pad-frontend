@@ -1,5 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { 
+  Briefcase, 
+  Users, 
+  Plus, 
+  Folder, 
+  FileText, 
+  Download, 
+  Trash2, 
+  Archive, 
+  Settings, 
+  RefreshCw, 
+  Upload 
+} from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useSidebar } from "./useSidebar";
 import { HEADINGS } from "../../constants/headings";
@@ -67,8 +80,7 @@ export const Sidebar = ({
           {HEADINGS.APP_TITLE} <span>{HEADINGS.APP_VERSION}</span>
         </div>
         <button
-          className="btn"
-          style={{ display: "none", padding: "0 6px", height: "24px" }}
+          className="btn sidebar-close-btn"
           onClick={() => setSidebarOpen(false)}
         >
           ✕
@@ -84,18 +96,18 @@ export const Sidebar = ({
           >
             {workspaces.map((ws) => (
               <option key={ws.id} value={ws.id}>
-                💼 {ws.name}
+                {ws.name}
               </option>
             ))}
           </select>
 
           {isMaintainer && (
             <button
-              className="btn"
+              className="btn flex-center"
               onClick={() => setShowInviteModal(true)}
               title="Invite members"
             >
-              👥
+              <Users size={14} />
             </button>
           )}
         </div>
@@ -113,33 +125,25 @@ export const Sidebar = ({
           >
             <div className="sidebar-item-label">
               <span className="badge badge-live">Live</span>
-              <span style={{ fontWeight: 500 }}>{activeSheet.title}</span>
+              <span className="sheet-title-active">{activeSheet.title}</span>
             </div>
           </div>
         ) : (
-          <div
-            style={{
-              padding: "8px",
-              color: "var(--text-muted)",
-              fontSize: "12px",
-            }}
-          >
+          <div className="sidebar-empty-state">
             {HEADINGS.SIDEBAR.NO_ACTIVE_SHEET}
           </div>
         )}
 
         {/* Live Workspace Actions */}
-        <div style={{ display: "flex", gap: "4px", padding: "4px 8px" }}>
+        <div className="sidebar-actions-row">
           <button
-            className="btn btn-primary"
-            style={{ flex: 1, fontSize: "11px", height: "28px" }}
+            className="btn btn-primary sidebar-btn-save"
             onClick={onSaveLiveSheet}
           >
             Save / Archive
           </button>
           <button
-            className="btn btn-danger"
-            style={{ fontSize: "11px", height: "28px" }}
+            className="btn btn-danger sidebar-btn-reset"
             onClick={onDeleteLiveSheet}
             title="Delete and Reset Live Sheet"
           >
@@ -148,28 +152,11 @@ export const Sidebar = ({
         </div>
 
         {/* Saved Folders / Categories */}
-        <div
-          className="sidebar-section-title"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div className="sidebar-section-title sidebar-section-title-interactive">
           <span>{HEADINGS.SIDEBAR.SAVED_SHEETS_TITLE}</span>
           <button
             type="button"
-            className="btn"
-            style={{
-              padding: "0 4px",
-              height: "16px",
-              fontSize: "10px",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-              color: "var(--text-muted)",
-              lineHeight: "1",
-            }}
+            className="btn sidebar-header-btn"
             onClick={() => {
               const title = prompt("Create new sheet:");
               if (title && title.trim()) {
@@ -178,7 +165,7 @@ export const Sidebar = ({
             }}
             title="Create new sheet"
           >
-            ➕
+            <Plus size={14} />
           </button>
         </div>
 
@@ -186,29 +173,26 @@ export const Sidebar = ({
         {showCatInput ? (
           <form
             onSubmit={handleCreateCategorySubmit}
-            style={{ padding: "0 8px 8px 8px" }}
+            className="category-form"
           >
             <input
               type="text"
-              className="input-field"
+              className="input-field category-input"
               placeholder={HEADINGS.SIDEBAR.NEW_CAT_PLACEHOLDER}
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               autoFocus
-              style={{ height: "28px", fontSize: "12px", marginBottom: "4px" }}
             />
-            <div style={{ display: "flex", gap: "4px" }}>
+            <div className="flex-align flex-gap-2">
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ flex: 1, height: "24px", fontSize: "10px" }}
+                className="btn btn-primary category-form-btn"
               >
                 {HEADINGS.SIDEBAR.ADD_BTN}
               </button>
               <button
                 type="button"
-                className="btn"
-                style={{ height: "24px", fontSize: "10px" }}
+                className="btn category-form-btn"
                 onClick={() => setShowCatInput(false)}
               >
                 {HEADINGS.SIDEBAR.CANCEL_BTN}
@@ -217,21 +201,14 @@ export const Sidebar = ({
           </form>
         ) : (
           <button
-            className="btn"
-            style={{
-              width: "calc(100% - 16px)",
-              margin: "0 8px 8px 8px",
-              height: "26px",
-              fontSize: "11px",
-              borderStyle: "dashed",
-            }}
+            className="btn category-trigger-btn"
             onClick={() => setShowCatInput(true)}
           >
             {HEADINGS.SIDEBAR.NEW_CAT_BTN}
           </button>
         )}
 
-        <div style={{ padding: "0 8px" }}>
+        <div className="sidebar-list-container">
           {/* Categories and their sheets */}
           {categories.map((cat) => {
             const isExpanded = !!expandedCats[cat.id];
@@ -241,31 +218,13 @@ export const Sidebar = ({
                 <div
                   className="category-header"
                   onClick={() => toggleCategory(cat.id)}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
                 >
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    📁 {cat.name} ({catSheets.length})
+                  <span className="flex-align flex-gap-3">
+                    <Folder size={14} />
+                    <span>{cat.name} ({catSheets.length})</span>
                     <button
                       type="button"
-                      className="btn"
-                      style={{
-                        padding: "0 4px",
-                        height: "16px",
-                        fontSize: "10px",
-                        border: "none",
-                        background: "transparent",
-                        cursor: "pointer",
-                      }}
+                      className="btn category-add-sheet-btn"
                       onClick={(e) => {
                         e.stopPropagation();
                         const title = prompt(
@@ -277,7 +236,7 @@ export const Sidebar = ({
                       }}
                       title="Create new sheet in category"
                     >
-                      ➕
+                      <Plus size={12} />
                     </button>
                   </span>
                   <span>{isExpanded ? "▼" : "▶"}</span>
@@ -285,13 +244,7 @@ export const Sidebar = ({
                 {isExpanded && (
                   <div className="category-sheets">
                     {catSheets.length === 0 ? (
-                      <div
-                        style={{
-                          padding: "6px 8px",
-                          color: "var(--text-muted)",
-                          fontSize: "11px",
-                        }}
-                      >
+                      <div className="category-empty-text">
                         {HEADINGS.SIDEBAR.EMPTY_FOLDER}
                       </div>
                     ) : (
@@ -321,19 +274,16 @@ export const Sidebar = ({
               className="category-header"
               onClick={() => toggleCategory("uncat")}
             >
-              <span>📁 Uncategorized ({uncategorizedSheets.length})</span>
+              <span className="flex-align flex-gap-3">
+                <Folder size={14} />
+                <span>Uncategorized ({uncategorizedSheets.length})</span>
+              </span>
               <span>{expandedCats["uncat"] ? "▼" : "▶"}</span>
             </div>
             {expandedCats["uncat"] && (
               <div className="category-sheets">
                 {uncategorizedSheets.length === 0 ? (
-                  <div
-                    style={{
-                      padding: "6px 8px",
-                      color: "var(--text-muted)",
-                      fontSize: "11px",
-                    }}
-                  >
+                  <div className="category-empty-text">
                     {HEADINGS.SIDEBAR.EMPTY_FOLDER}
                   </div>
                 ) : (
@@ -356,21 +306,18 @@ export const Sidebar = ({
 
         {/* Workspace Drive Collapsible Section */}
         <div
-          className="sidebar-section-title"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            cursor: "pointer",
-          }}
+          className="sidebar-section-title sidebar-section-title-interactive"
           onClick={() => setDriveExpanded(!driveExpanded)}
         >
-          <span>📁 {HEADINGS.SIDEBAR.FILES_TITLE}</span>
+          <span className="flex-align flex-gap-3">
+            <Folder size={14} />
+            <span>{HEADINGS.SIDEBAR.FILES_TITLE}</span>
+          </span>
           <span>{driveExpanded ? "▼" : "▶"}</span>
         </div>
 
         {driveExpanded && (
-          <div className="drive-container" style={{ padding: "0 8px 8px 8px" }}>
+          <div className="drive-container drive-container-inner">
             {/* File Drag-and-Drop Area & Button */}
             <div
               className={`file-dropzone ${uploadingFile ? "uploading" : ""}`}
@@ -386,61 +333,34 @@ export const Sidebar = ({
                 const fileInput = document.getElementById("drive-file-input");
                 if (fileInput) fileInput.click();
               }}
-              style={{
-                border: "1px dashed var(--border-color)",
-                borderRadius: "4px",
-                padding: "12px",
-                textAlign: "center",
-                cursor: "pointer",
-                backgroundColor: "rgba(255, 255, 255, 0.01)",
-                fontSize: "11px",
-                color: "var(--text-muted)",
-                transition: "all 0.2s ease",
-                marginBottom: "8px",
-              }}
             >
               <input
                 id="drive-file-input"
                 type="file"
-                style={{ display: "none" }}
+                className="sidebar-close-btn"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) onUploadFile(file);
                 }}
               />
               {uploadingFile ? (
-                <span>🔄 {HEADINGS.SIDEBAR.UPLOADING}</span>
+                <span className="flex-center flex-gap-3"><RefreshCw size={14} className="spin-animation" /> {HEADINGS.SIDEBAR.UPLOADING}</span>
               ) : (
-                <span>📥 {HEADINGS.SIDEBAR.UPLOAD_DRAG_PROMPT}</span>
+                <span className="flex-center flex-gap-3"><Upload size={14} /> {HEADINGS.SIDEBAR.UPLOAD_DRAG_PROMPT}</span>
               )}
             </div>
 
             {/* Files List */}
             {loadingFiles ? (
-              <div
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-muted)",
-                  padding: "4px",
-                }}
-              >
+              <div className="drive-empty-text">
                 Loading files...
               </div>
             ) : files.length === 0 ? (
-              <div
-                style={{
-                  fontSize: "11px",
-                  color: "var(--text-muted)",
-                  padding: "4px",
-                }}
-              >
+              <div className="drive-empty-text">
                 {HEADINGS.SIDEBAR.NO_FILES}
               </div>
             ) : (
-              <div
-                className="drive-files-list"
-                style={{ display: "flex", flexDirection: "column", gap: "6px" }}
-              >
+              <div className="drive-files-list flex-column flex-gap-2">
                 {files.map((file) => {
                   // Format file size cleanly
                   const sizeKB = (file.size_bytes / 1024).toFixed(1);
@@ -461,57 +381,24 @@ export const Sidebar = ({
                     <div
                       key={file.id}
                       className="drive-file-item"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        padding: "6px 8px",
-                        border: "1px solid var(--border-color)",
-                        backgroundColor: "var(--bg-card)",
-                        fontSize: "12px",
-                        borderRadius: "2px",
-                      }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "2px",
-                          overflow: "hidden",
-                          flex: 1,
-                        }}
-                      >
+                      <div className="drive-file-info">
                         <div
-                          style={{
-                            fontWeight: 500,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
+                          className="drive-file-name"
                           title={file.original_name}
                         >
-                          📄 {file.original_name}
+                          <FileText size={14} style={{ flexShrink: 0 }} />
+                          {file.original_name}
                         </div>
-                        <div
-                          style={{
-                            fontSize: "10px",
-                            color: "var(--text-muted)",
-                          }}
-                        >
+                        <div className="drive-file-meta">
                           {displaySize} • {file.uploader_username || "Unknown"}{" "}
                           • {uploadDate}
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: "4px" }}>
+                      <div className="flex-align flex-gap-2">
                         <button
                           type="button"
-                          className="btn"
-                          style={{
-                            padding: "0 6px",
-                            height: "22px",
-                            fontSize: "10px",
-                            cursor: "pointer",
-                          }}
+                          className="btn drive-file-btn"
                           onClick={() => {
                             // Fetch file download stream
                             const downloadUrl = `${API_BASE_URL}/workspaces/${activeWorkspaceId}/files/${file.id}/download`;
@@ -519,21 +406,15 @@ export const Sidebar = ({
                           }}
                           title="Download file"
                         >
-                          ⬇️
+                          <Download size={12} />
                         </button>
                         <button
                           type="button"
-                          className="btn btn-danger"
-                          style={{
-                            padding: "0 6px",
-                            height: "22px",
-                            fontSize: "10px",
-                            cursor: "pointer",
-                          }}
+                          className="btn btn-danger drive-file-btn"
                           onClick={() => onDeleteFile(file.id)}
                           title="Delete file"
                         >
-                          🗑️
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     </div>
@@ -548,27 +429,21 @@ export const Sidebar = ({
         <div className="sidebar-section-title">
           {HEADINGS.SIDEBAR.ARCHIVED_SHEETS_TITLE}
         </div>
-        <div style={{ padding: "0 8px" }}>
+        <div className="sidebar-list-container">
           {archivedSheets.length === 0 ? (
-            <div
-              style={{
-                padding: "6px 8px",
-                color: "var(--text-muted)",
-                fontSize: "12px",
-              }}
-            >
+            <div className="sidebar-empty-state">
               {HEADINGS.SIDEBAR.NO_ARCHIVED_SHEETS}
             </div>
           ) : (
             archivedSheets.map((sheet) => (
               <div
                 key={sheet.id}
-                className="sidebar-item"
+                className="sidebar-item archived-item-wrapper"
                 onClick={() => onOpenArchivedSheet(sheet)}
-                style={{ opacity: 0.7 }}
               >
-                <div className="sidebar-item-label">
-                  <span>📦 {sheet.title}</span>
+                <div className="sidebar-item-label flex-align flex-gap-3">
+                  <Archive size={14} />
+                  <span>{sheet.title}</span>
                 </div>
               </div>
             ))
@@ -577,71 +452,25 @@ export const Sidebar = ({
       </div>
 
       {isAdmin && (
-        <div
-          style={{
-            padding: "0 8px 8px 8px",
-            borderTop: "1px solid var(--border-color)",
-            paddingTop: "8px",
-          }}
-        >
+        <div className="sidebar-admin-section">
           <button
-            className="btn"
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              height: "32px",
-              fontSize: "12px",
-              cursor: "pointer",
-            }}
+            className="btn flex-center flex-gap-3 admin-sidebar-btn"
             onClick={() => navigate("/admin")}
           >
-            ⚙️ Admin Dashboard
+            <Settings size={14} /> Admin Dashboard
           </button>
         </div>
       )}
 
       {/* User profile footer */}
       <div className="sidebar-footer">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              maxWidth: "140px",
-            }}
-          >
-            <span
-              style={{
-                color: "var(--text-muted)",
-                fontSize: "11px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-              }}
-            >
+        <div className="sidebar-footer-row">
+          <div className="sidebar-footer-user-info">
+            <span className="sidebar-footer-user-label">
               {HEADINGS.SIDEBAR.ACTIVE_USER}
               <button
                 type="button"
-                className="btn"
-                style={{
-                  padding: "0 4px",
-                  height: "16px",
-                  fontSize: "10px",
-                  lineHeight: "1",
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                }}
+                className="btn sidebar-sync-btn"
                 onClick={async () => {
                   try {
                     await refreshSession();
@@ -653,14 +482,13 @@ export const Sidebar = ({
                 }}
                 title="Sync/Refresh roles"
               >
-                {HEADINGS.SIDEBAR.SYNC_ROLES_BTN}
+                <RefreshCw size={12} />
               </button>
             </span>
-            <div style={{ fontWeight: 600 }}>{user?.username}</div>
+            <div className="sidebar-footer-username">{user?.username}</div>
           </div>
           <button
-            className="btn"
-            style={{ fontSize: "11px", padding: "0 8px", height: "26px" }}
+            className="btn sidebar-footer-logout-btn"
             onClick={logout}
           >
             {HEADINGS.SIDEBAR.LOGOUT_BTN}

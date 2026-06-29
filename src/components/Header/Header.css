@@ -37,3 +37,87 @@
     padding: 0 16px;
   }
 }
+
+.header.live-tab {
+  height: 56px;
+}
+
+.header.saved-tab {
+  height: 72px;
+}
+
+.header-inner {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.header-countdown {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-archived-danger {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  background-color: rgba(255, 51, 51, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-take-control {
+  height: 24px;
+  font-size: 10px;
+  padding: 0 8px;
+}
+
+.header-editor-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+}
+
+.header-title-input {
+  width: 160px;
+  height: 28px;
+  font-size: 13px;
+}
+
+.header-category-select {
+  height: 28px;
+  font-size: 12px;
+  padding: 0 24px 0 8px;
+}
+
+.header-refresh-btn {
+  height: 28px;
+  font-size: 11px;
+  border-color: var(--border-focus);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-save-btn {
+  height: 28px;
+  font-size: 11px;
+}
+
+.header-delete-btn {
+  height: 28px;
+  font-size: 11px;
+  padding: 0 8px;
+}

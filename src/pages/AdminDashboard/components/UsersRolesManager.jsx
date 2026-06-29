@@ -1,4 +1,5 @@
 import React from "react";
+import { Briefcase } from "lucide-react";
 
 export const UsersRolesManager = ({
   users,
@@ -72,8 +73,9 @@ export const UsersRolesManager = ({
                       `ID: ${r.workspaceId}`;
                     return (
                       <div key={idx} className="user-role-item">
-                        <span>
-                          💼 <strong>{wsName}</strong> ({r.access})
+                        <span className="flex-align flex-gap-3">
+                          <Briefcase size={13} />
+                          <strong>{wsName}</strong> ({r.access})
                         </span>
                         <button
                           type="button"

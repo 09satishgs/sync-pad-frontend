@@ -215,7 +215,6 @@
   justify-content: flex-end;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .admin-roles-manager {
     grid-template-columns: 1fr;
@@ -223,4 +222,19 @@
   .admin-form-row {
     grid-template-columns: 1fr;
   }
+}
+
+.admin-btn-primary {
+  height: 36px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-btn-danger {
+  height: 36px;
+  font-size: 13px;
+  cursor: pointer;
 }

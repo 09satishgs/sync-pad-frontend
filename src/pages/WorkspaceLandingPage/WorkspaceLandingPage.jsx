@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { RefreshCw } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { HEADINGS } from "../../constants/headings";
 import "./WorkspaceLandingPage.css";
@@ -15,7 +16,7 @@ export default function WorkspaceLandingPage() {
       alert("Roles and session metadata refreshed successfully.");
       window.location.reload();
     } catch (err) {
-      alert("Session refresh failed: " + err.message);
+      alert("Sync failed: " + err.message);
     } finally {
       setSyncing(false);
     }
@@ -30,11 +31,12 @@ export default function WorkspaceLandingPage() {
         </div>
         <div className="landing-actions">
           <button
-            className="btn btn-primary landing-btn"
+            className="btn btn-primary landing-btn flex-center flex-gap-4"
             onClick={handleSync}
             disabled={syncing}
           >
-            {syncing ? "🔄 Syncing..." : "🔄 Sync Roles"}
+            <RefreshCw size={14} className={syncing ? "spin-animation" : ""} />
+            {syncing ? "Syncing..." : "Sync Roles"}
           </button>
           <button
             className="btn btn-danger landing-btn"

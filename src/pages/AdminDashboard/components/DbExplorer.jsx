@@ -35,7 +35,7 @@ export const DbExplorer = ({
         >
           {tables.map((t) => (
             <option key={t} value={t}>
-              📄 {t}
+              {t}
             </option>
           ))}
         </select>

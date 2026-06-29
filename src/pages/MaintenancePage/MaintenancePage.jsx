@@ -1,4 +1,5 @@
 import React from "react";
+import { RefreshCw } from "lucide-react";
 import "./MaintenancePage.css";
 
 export const MaintenancePage = () => {
@@ -42,8 +43,8 @@ export const MaintenancePage = () => {
           <div className="maintenance-time-label">Expected Completion Time</div>
           <div className="maintenance-time-value">{getExpectedCompletionTime()}</div>
         </div>
-        <button className="maintenance-retry-btn" onClick={handleRetry}>
-          🔄 Retry Connection
+        <button className="maintenance-retry-btn flex-center flex-gap-4" onClick={handleRetry}>
+          <RefreshCw size={16} /> Retry Connection
         </button>
       </div>
     </div>

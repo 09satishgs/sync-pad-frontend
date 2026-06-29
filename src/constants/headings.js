@@ -13,12 +13,12 @@ export const HEADINGS = {
       "You do not belong to any workspace yet. Please contact your workspace administrator or maintainer to invite you to a workspace.",
   },
   DASHBOARD: {
-    LIVE_SHEET_TAB: "⚡ Live Sheet",
+    LIVE_SHEET_TAB: "Live Sheet",
     INITIALIZING_LIVE: "Initializing Live Space...",
     SELECT_TAB_PROMPT: "Select a tab to begin.",
     COUNTDOWN_SUFFIX: "remaining (Auto-archives when timer hits zero)",
-    EDITING_BADGE: "🟢 Editing",
-    READ_ONLY_BADGE: "🔒 Read-Only (Another Device)",
+    EDITING_BADGE: "Editing",
+    READ_ONLY_BADGE: "Read-Only (Another Device)",
     TAKE_CONTROL_BTN: "Take Control",
   },
   SIDEBAR: {
@@ -34,7 +34,7 @@ export const HEADINGS = {
     EMPTY_FOLDER: "Empty",
     ACTIVE_USER: "Active User",
     LOGOUT_BTN: "Logout",
-    SYNC_ROLES_BTN: "🔄",
+    SYNC_ROLES_BTN: "",
     FILES_TITLE: "Workspace Drive",
     NO_FILES: "No files shared.",
     UPLOAD_DRAG_PROMPT: "Drag & drop files here or click to browse",
@@ -54,14 +54,14 @@ export const HEADINGS = {
       METHOD_ARCHIVE_DESC: "Cannot edit directly",
     },
     CONFLICT: {
-      TITLE: "⚠️ Concurrency Conflict",
+      TITLE: "Concurrency Conflict",
       DESCRIPTION:
         "This saved sheet was modified on another device after you opened it. Red indicates deleted lines on server; Green indicates your added lines.",
       INCOMING_HEADER: "INCOMING (SERVER VERSION)",
       OUTGOING_HEADER: "OUTGOING (YOUR VERSION)",
     },
     ARCHIVE: {
-      TITLE: "📦 Archived Clipboard (Read-Only)",
+      TITLE: "Archived Clipboard (Read-Only)",
       TITLE_LABEL: "Title:",
       INSTRUCTION:
         "To edit this content, load it into your live workspace and save it as a new editable sheet.",
@@ -76,15 +76,25 @@ export const HEADINGS = {
       MAINTAINER_BADGE: "Maintainer",
       MEMBER_BADGE: "Member",
     },
+    INVITE: {
+      TITLE: "Manage Workspace Members",
+      MEMBER_LIST_HEADER: "Current Members",
+      ADD_MEMBER_LABEL: "Invite Member by Username",
+      ADD_MEMBER_PLACEHOLDER: "e.g. johndoe",
+      INVITE_BTN: "Invite",
+      NO_MEMBERS: "No members found.",
+      MAINTAINER_BADGE: "Maintainer",
+      MEMBER_BADGE: "Member",
+    },
   },
   ADMIN: {
-    TITLE: "⚙️ Admin Control Panel",
+    TITLE: "Admin Control Panel",
     SUBTITLE:
       "System authority dashboard for database tables, roles, and workspaces.",
     TABS: {
-      DB_EXPLORER: "📁 DB Explorer",
-      USERS_ROLES: "👥 Users & Roles",
-      WORKSPACES: "💼 Workspaces",
+      DB_EXPLORER: "DB Explorer",
+      USERS_ROLES: "Users & Roles",
+      WORKSPACES: "Workspaces",
     },
     DB: {
       SELECT_TABLE: "Select a Database Table:",

@@ -1,4 +1,5 @@
 import React from "react";
+import { Briefcase } from "lucide-react";
 import { HEADINGS } from "../../constants/headings";
 import { useAdminDashboard } from "./useAdminDashboard";
 import DbExplorer from "./components/DbExplorer";
@@ -72,18 +73,16 @@ export default function AdminDashboard() {
           <div className="admin-title">{headings.TITLE}</div>
           <div className="admin-subtitle">{headings.SUBTITLE}</div>
         </div>
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div className="flex-align flex-gap-4">
           <button
-            className="btn btn-primary"
+            className="btn btn-primary admin-btn-primary"
             onClick={handleGoToWorkspace}
-            style={{ height: "36px", fontSize: "13px", cursor: "pointer" }}
           >
-            💼 Go to Workspace
+            <Briefcase size={14} /> Go to Workspace
           </button>
           <button
-            className="btn btn-danger"
+            className="btn btn-danger admin-btn-danger"
             onClick={logout}
-            style={{ height: "36px", fontSize: "13px", cursor: "pointer" }}
           >
             Logout
           </button>
