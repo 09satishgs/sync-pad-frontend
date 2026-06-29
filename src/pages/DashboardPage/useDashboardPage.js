@@ -4,6 +4,7 @@ import api from "../../api";
 import { ENDPOINTS } from "../../constants/config";
 import { useAuth } from "../../hooks/useAuth";
 import { useSocket } from "../../hooks/useSocket";
+import { customConfirm } from "../../components/CustomAlerts/CustomAlerts";
 
 export const useDashboardPage = () => {
   const { user } = useAuth();
@@ -230,7 +231,8 @@ export const useDashboardPage = () => {
 
     // Notify the server which sheet we are viewing (passes username, and tab change will trigger lock transfer)
     const registerViewing = () => {
-      const targetSheetId = activeTabId === "live" ? activeSheet.id : activeTabId;
+      const targetSheetId =
+        activeTabId === "live" ? activeSheet.id : activeTabId;
       if (targetSheetId) {
         socket.emit("client_viewing_sheet", {
           sheetId: targetSheetId,
@@ -480,9 +482,9 @@ export const useDashboardPage = () => {
   const handleDeleteLiveSheet = async () => {
     if (!activeWorkspaceId) return;
     if (
-      !confirm(
-        "Are you sure you want to discard your current live sheet? All unsaved edits will be lost.",
-      )
+      !(await customConfirm(
+        "Are you sure you want to discard your current live sheet? This action cannot be reversed!",
+      ))
     ) {
       return;
     }
@@ -542,11 +544,13 @@ export const useDashboardPage = () => {
     }
   };
 
-  const handleCloseTab = (tabId, e) => {
+  const handleCloseTab = async (tabId, e) => {
     if (e) e.stopPropagation();
     const tab = openTabs.find((t) => t.id === tabId);
     if (tab && tab.isDirty) {
-      if (!confirm(`Discard unsaved changes to "${tab.title}"?`)) {
+      if (
+        !(await customConfirm(`Discard unsaved changes to "${tab.title}"?`))
+      ) {
         return;
       }
     }
@@ -669,7 +673,9 @@ export const useDashboardPage = () => {
   const handleDeleteSavedSheetFromTab = async (sheetId) => {
     if (!activeWorkspaceId) return;
     if (
-      !confirm("Are you sure you want to delete this saved sheet permanently?")
+      !(await customConfirm(
+        "Are you sure you want to delete this saved sheet permanently?",
+      ))
     ) {
       return;
     }
@@ -781,7 +787,8 @@ export const useDashboardPage = () => {
 
   const handleDeleteArchivedSheet = async (sheetId) => {
     if (!activeWorkspaceId) return;
-    if (!confirm("Delete this archived sheet permanently?")) return;
+    if (!(await customConfirm("Delete this archived sheet permanently?")))
+      return;
     try {
       await api.delete(
         ENDPOINTS.SHEETS.SAVED_DETAIL(activeWorkspaceId, sheetId),
@@ -835,10 +842,10 @@ export const useDashboardPage = () => {
     sheetLock.isLocked &&
     sheetLock.lockedBySocketId !== socketId;
 
-  const handleTakeControl = () => {
+  const handleTakeControl = async () => {
     if (socket && activeSheet) {
       if (
-        confirm(
+        await customConfirm(
           "Are you sure you want to take over editing control of this live sheet? This will make other devices' views read-only.",
         )
       ) {
@@ -889,7 +896,8 @@ export const useDashboardPage = () => {
   // Delete file
   const handleDeleteFile = async (fileId) => {
     if (!activeWorkspaceId) return;
-    if (!confirm("Are you sure you want to delete this file?")) return;
+    if (!(await customConfirm("Are you sure you want to delete this file?")))
+      return;
     try {
       await api.delete(ENDPOINTS.FILES.DELETE(activeWorkspaceId, fileId));
       addToast("File deleted successfully.", "success");

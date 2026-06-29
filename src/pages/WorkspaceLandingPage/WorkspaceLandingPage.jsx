@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { HEADINGS } from "../../constants/headings";
+import { customAlert } from "../../components/CustomAlerts/CustomAlerts";
 import "./WorkspaceLandingPage.css";
 
 export default function WorkspaceLandingPage() {
@@ -13,10 +14,10 @@ export default function WorkspaceLandingPage() {
     setSyncing(true);
     try {
       await refreshSession();
-      alert("Roles and session metadata refreshed successfully.");
+      await customAlert("Roles and session metadata refreshed successfully.");
       window.location.reload();
     } catch (err) {
-      alert("Sync failed: " + err.message);
+      await customAlert("Sync failed: " + err.message);
     } finally {
       setSyncing(false);
     }

@@ -6,6 +6,7 @@ import AuthPage from "./pages/AuthPage/AuthPage";
 import DashboardPage from "./pages/DashboardPage/DashboardPage";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
 import MaintenancePage from "./pages/MaintenancePage/MaintenancePage";
+import CustomAlerts from "./components/CustomAlerts/CustomAlerts";
 import api from "./api";
 import { ENDPOINTS } from "./constants/config";
 import { HEADINGS } from "./constants/headings";
@@ -118,6 +119,7 @@ export default function App() {
     <AuthProvider>
       <SocketProvider>
         <MainApp />
+        <CustomAlerts />
       </SocketProvider>
     </AuthProvider>
   );

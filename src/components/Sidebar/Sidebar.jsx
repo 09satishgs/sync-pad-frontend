@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Briefcase, 
-  Users, 
-  Plus, 
-  Folder, 
-  FileText, 
-  Download, 
-  Trash2, 
-  Archive, 
-  Settings, 
-  RefreshCw, 
-  Upload 
+import {
+  Briefcase,
+  Users,
+  Plus,
+  Folder,
+  FileText,
+  Download,
+  Trash2,
+  Archive,
+  Settings,
+  RefreshCw,
+  Upload,
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { useSidebar } from "./useSidebar";
 import { HEADINGS } from "../../constants/headings";
 import { API_BASE_URL } from "../../constants/config";
+import { customAlert, customPrompt } from "../CustomAlerts/CustomAlerts";
 import "./Sidebar.css";
 
 export const Sidebar = ({
@@ -72,6 +73,23 @@ export const Sidebar = ({
       uncategorizedSheets.push(sheet);
     }
   });
+
+  const handleSync = async () => {
+    try {
+      await refreshSession();
+      await customAlert("Roles and session metadata refreshed successfully.");
+      window.location.reload();
+    } catch (err) {
+      await customAlert("Session refresh failed: " + err.message);
+    }
+  };
+
+  const handleCreateSheet = async () => {
+    const title = await customPrompt("Create new sheet:");
+    if (title && title.trim()) {
+      onCreateSheetInCategory(title.trim(), null);
+    }
+  };
 
   return (
     <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
@@ -157,12 +175,7 @@ export const Sidebar = ({
           <button
             type="button"
             className="btn sidebar-header-btn"
-            onClick={() => {
-              const title = prompt("Create new sheet:");
-              if (title && title.trim()) {
-                onCreateSheetInCategory(title.trim(), null);
-              }
-            }}
+            onClick={handleCreateSheet}
             title="Create new sheet"
           >
             <Plus size={14} />
@@ -171,10 +184,7 @@ export const Sidebar = ({
 
         {/* Create Category Trigger */}
         {showCatInput ? (
-          <form
-            onSubmit={handleCreateCategorySubmit}
-            className="category-form"
-          >
+          <form onSubmit={handleCreateCategorySubmit} className="category-form">
             <input
               type="text"
               className="input-field category-input"
@@ -221,13 +231,15 @@ export const Sidebar = ({
                 >
                   <span className="flex-align flex-gap-3">
                     <Folder size={14} />
-                    <span>{cat.name} ({catSheets.length})</span>
+                    <span>
+                      {cat.name} ({catSheets.length})
+                    </span>
                     <button
                       type="button"
                       className="btn category-add-sheet-btn"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        const title = prompt(
+                        const title = await customPrompt(
                           `Create new sheet inside "${cat.name}":`,
                         );
                         if (title && title.trim()) {
@@ -344,17 +356,20 @@ export const Sidebar = ({
                 }}
               />
               {uploadingFile ? (
-                <span className="flex-center flex-gap-3"><RefreshCw size={14} className="spin-animation" /> {HEADINGS.SIDEBAR.UPLOADING}</span>
+                <span className="flex-center flex-gap-3">
+                  <RefreshCw size={14} className="spin-animation" />{" "}
+                  {HEADINGS.SIDEBAR.UPLOADING}
+                </span>
               ) : (
-                <span className="flex-center flex-gap-3"><Upload size={14} /> {HEADINGS.SIDEBAR.UPLOAD_DRAG_PROMPT}</span>
+                <span className="flex-center flex-gap-3">
+                  <Upload size={14} /> {HEADINGS.SIDEBAR.UPLOAD_DRAG_PROMPT}
+                </span>
               )}
             </div>
 
             {/* Files List */}
             {loadingFiles ? (
-              <div className="drive-empty-text">
-                Loading files...
-              </div>
+              <div className="drive-empty-text">Loading files...</div>
             ) : files.length === 0 ? (
               <div className="drive-empty-text">
                 {HEADINGS.SIDEBAR.NO_FILES}
@@ -378,10 +393,7 @@ export const Sidebar = ({
                   });
 
                   return (
-                    <div
-                      key={file.id}
-                      className="drive-file-item"
-                    >
+                    <div key={file.id} className="drive-file-item">
                       <div className="drive-file-info">
                         <div
                           className="drive-file-name"
@@ -471,15 +483,7 @@ export const Sidebar = ({
               <button
                 type="button"
                 className="btn sidebar-sync-btn"
-                onClick={async () => {
-                  try {
-                    await refreshSession();
-                    alert("Roles and session metadata refreshed successfully.");
-                    window.location.reload();
-                  } catch (err) {
-                    alert("Session refresh failed: " + err.message);
-                  }
-                }}
+                onClick={handleSync}
                 title="Sync/Refresh roles"
               >
                 <RefreshCw size={12} />
@@ -487,10 +491,7 @@ export const Sidebar = ({
             </span>
             <div className="sidebar-footer-username">{user?.username}</div>
           </div>
-          <button
-            className="btn sidebar-footer-logout-btn"
-            onClick={logout}
-          >
+          <button className="btn sidebar-footer-logout-btn" onClick={logout}>
             {HEADINGS.SIDEBAR.LOGOUT_BTN}
           </button>
         </div>

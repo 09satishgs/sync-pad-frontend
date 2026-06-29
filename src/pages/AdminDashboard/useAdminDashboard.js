@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import { ENDPOINTS } from "../../constants/config";
 import { useAuth } from "../../hooks/useAuth";
+import { customAlert } from "../../components/CustomAlerts/CustomAlerts";
 
 export const useAdminDashboard = () => {
   const navigate = useNavigate();
@@ -53,14 +54,14 @@ export const useAdminDashboard = () => {
     try {
       const res = await api.get(ENDPOINTS.WORKSPACES.LIST);
       if (res.data.length === 0) {
-        alert("No workspaces found.");
+        await customAlert("No workspaces found.");
       } else {
         localStorage.setItem("activeWorkspaceId", res.data[0].id);
         navigate("/workspace");
       }
     } catch (err) {
       console.error("Failed to query workspaces:", err);
-      alert("Error querying workspaces.");
+      await customAlert("Error querying workspaces.");
     }
   };
 

@@ -33,6 +33,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 16px 8px;
+  scrollbar-width: none;
 }
 
 .sidebar-section-title {
@@ -343,8 +344,12 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 .spin-animation {
   animation: spin 1.2s linear infinite;
