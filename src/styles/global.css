@@ -151,21 +151,14 @@ textarea {
 
 /* Responsive / Mobile View Generic styling */
 .hamburger-btn {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .mobile-nav-toggle {
   display: none;
-}
-
-@media (max-width: 768px) {
-  .hamburger-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-  }
 }
 
 /* Layout utility classes */

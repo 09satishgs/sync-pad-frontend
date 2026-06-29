@@ -1,6 +1,7 @@
-import React from 'react';
-import { Menu, Clock, Lock, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, Clock, Lock, RefreshCw, FileText, Code } from 'lucide-react';
 import { HEADINGS } from '../../constants/headings';
+import { handleDownload as downloadHelper } from '../../utils/helpers';
 import './Header.css';
 
 export const Header = ({
@@ -18,13 +19,55 @@ export const Header = ({
   isLiveLocked = false,
   handleTakeControl,
 }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const triggerDownload = (type) => {
+    const currentSheet = activeTabId === 'live' ? activeSheet : activeSavedTab;
+    if (!currentSheet) return;
+    downloadHelper(currentSheet.title, currentSheet.content, type);
+  };
+
   return (
     <header className={`header ${activeTabId === 'live' ? 'live-tab' : 'saved-tab'}`}>
       <div className="header-left header-inner">
-        <div className="header-left-inner">
-          <button className="btn hamburger-btn flex-center" onClick={() => setSidebarOpen(!sidebarOpen)}>
+        <div className="header-left-inner" ref={dropdownRef}>
+          <button className="btn hamburger-btn flex-center" onClick={() => setShowDropdown(!showDropdown)}>
             <Menu size={18} />
           </button>
+
+          {showDropdown && (
+            <div className="header-dropdown-menu">
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  triggerDownload('text');
+                  setShowDropdown(false);
+                }}
+              >
+                <FileText size={14} /> Download as Text
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  triggerDownload('html');
+                  setShowDropdown(false);
+                }}
+              >
+                <Code size={14} /> Download as HTML
+              </button>
+            </div>
+          )}
 
           {activeTabId === 'live' ? (
             <div className="flex-align flex-gap-4">
