@@ -452,7 +452,12 @@ export const useDashboardPage = () => {
       }
 
       // Load new live sheet and close modal
-      setActiveSheet(res.data.newLiveSheet);
+      let nextLiveSheet = res.data.newLiveSheet;
+      if (!nextLiveSheet) {
+        const liveRes = await api.get(ENDPOINTS.SHEETS.LIVE(activeWorkspaceId));
+        nextLiveSheet = liveRes.data;
+      }
+      setActiveSheet(nextLiveSheet);
       setShowSaveModal(false);
       setSaveTitle("");
       setSaveCatId("");
@@ -469,7 +474,7 @@ export const useDashboardPage = () => {
       if (socket) socket.emit("client_sheets_list_modified");
       addToast(
         saveType === "archived"
-          ? "Live sheet auto-archived. Fresh sheet started."
+          ? "Live sheet archived. Fresh sheet started."
           : "Live sheet saved as editable. Fresh sheet started.",
         "success",
       );
@@ -490,10 +495,11 @@ export const useDashboardPage = () => {
     }
 
     try {
-      const res = await api.post(
-        ENDPOINTS.SHEETS.DELETE_LIVE(activeWorkspaceId),
-      );
-      setActiveSheet(res.data.newLiveSheet);
+      await api.post(ENDPOINTS.SHEETS.DELETE_LIVE(activeWorkspaceId));
+      // Refresh the API after reset to reload new live sheet
+      const liveRes = await api.get(ENDPOINTS.SHEETS.LIVE(activeWorkspaceId));
+      setActiveSheet(liveRes.data);
+
       if (socket) socket.emit("client_sheets_list_modified");
       addToast("Live sheet has been reset.", "info");
     } catch (err) {
