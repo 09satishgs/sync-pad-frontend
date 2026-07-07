@@ -95,7 +95,7 @@ export const Sidebar = ({
     }
   };
 
-  const handleCreateSheetInCategory = async (e) => {
+  const handleCreateSheetInCategory = async (cat, e) => {
     e.stopPropagation();
     const title = await customPrompt(
       "Enter Category Name:",
@@ -253,7 +253,7 @@ export const Sidebar = ({
                     <button
                       type="button"
                       className="btn category-add-sheet-btn"
-                      onClick={handleCreateSheetInCategory}
+                      onClick={handleCreateSheetInCategory.bind(null, cat)}
                       title="Create new sheet in category"
                     >
                       <Plus size={12} />

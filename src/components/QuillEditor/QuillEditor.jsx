@@ -50,6 +50,51 @@ export const QuillEditor = ({
     }
   }, [remoteTrigger, content]);
 
+  // 3. Attach delegated click listener for copying code blocks
+  useEffect(() => {
+    if (!quillRef.current) return;
+    const editor = quillRef.current.getEditor();
+    const root = editor.root;
+
+    const handleRootClick = async (e) => {
+      const codeBlock = e.target.closest('pre.ql-syntax, pre, code');
+      if (codeBlock && root.contains(codeBlock)) {
+        const textToCopy = codeBlock.textContent || codeBlock.innerText || "";
+        if (!textToCopy) return;
+
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+
+          // Add temporary visual flash class
+          codeBlock.classList.add('copied-flash');
+          setTimeout(() => {
+            codeBlock.classList.remove('copied-flash');
+          }, 600);
+
+          // Render floating copy tooltip
+          const tooltip = document.createElement('div');
+          tooltip.className = 'copied-tooltip';
+          tooltip.innerText = 'Copied!';
+          tooltip.style.left = `${e.clientX + window.scrollX}px`;
+          tooltip.style.top = `${e.clientY + window.scrollY - 24}px`;
+          document.body.appendChild(tooltip);
+
+          setTimeout(() => {
+            tooltip.classList.add('fade-out');
+            setTimeout(() => tooltip.remove(), 200);
+          }, 800);
+        } catch (err) {
+          console.error("Failed to copy code text:", err);
+        }
+      }
+    };
+
+    root.addEventListener('click', handleRootClick);
+    return () => {
+      root.removeEventListener('click', handleRootClick);
+    };
+  }, [sheetId]);
+
   const handleTextChange = (value, delta, source) => {
     // Only trigger change events from user interactions to prevent infinite loop
     if (source === "user") {
@@ -59,7 +104,7 @@ export const QuillEditor = ({
 
   const modules = {
     toolbar: [
-      ["bold", "italic", "underline"],
+      ["bold", "italic", "underline", "code", "code-block"],
       [{ list: "ordered" }, { list: "bullet" }],
       ["clean"],
     ],
@@ -71,6 +116,7 @@ export const QuillEditor = ({
     "underline",
     "list",
     "bullet",
+    "code",
     "code-block",
   ];
 

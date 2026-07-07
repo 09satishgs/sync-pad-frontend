@@ -51,3 +51,107 @@
   border-top: 1px solid var(--border-color) !important;
 }
 
+/* Quill pre/code formatting custom styles */
+.quill-wrapper .ql-editor pre.ql-syntax {
+  background-color: var(--bg-card) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 6px !important;
+  padding: 12px 16px !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 13.5px !important;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.quill-wrapper .ql-editor pre.ql-syntax:hover {
+  border-color: var(--border-focus) !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.quill-wrapper .ql-editor pre.ql-syntax::after {
+  content: 'Click to copy';
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 10px;
+  color: var(--text-muted);
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.quill-wrapper .ql-editor pre.ql-syntax:hover::after {
+  opacity: 1;
+}
+
+.quill-wrapper .ql-editor code {
+  background-color: var(--bg-card) !important;
+  color: var(--accent-color) !important;
+  border: 1px solid var(--border-color);
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-family: 'Courier New', Courier, monospace !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.quill-wrapper .ql-editor code:hover {
+  border-color: var(--border-focus);
+}
+
+/* Copy flash animation */
+.quill-wrapper .ql-editor pre.copied-flash,
+.quill-wrapper .ql-editor code.copied-flash {
+  animation: copyFlash 0.6s ease;
+}
+
+@keyframes copyFlash {
+  0% {
+    background-color: var(--border-focus) !important;
+    opacity: 0.8;
+  }
+  100% {
+    background-color: var(--bg-card) !important;
+  }
+}
+
+/* Floating copy tooltip */
+.copied-tooltip {
+  position: absolute;
+  z-index: 10000;
+  background-color: var(--accent-color);
+  color: #000000;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.copied-tooltip.fade-out {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
