@@ -30,6 +30,20 @@ export const useDashboardPage = () => {
     };
   }, [socket]);
 
+  const [isGlobalReadOnly, setIsGlobalReadOnly] = useState(() => {
+    const stored = localStorage.getItem("syncpad_global_readonly");
+    if (stored === null) {
+      localStorage.setItem("syncpad_global_readonly", "false");
+      return false;
+    }
+    return stored === "true";
+  });
+
+  const handleToggleGlobalReadOnly = (value) => {
+    setIsGlobalReadOnly(value);
+    localStorage.setItem("syncpad_global_readonly", String(value));
+  };
+
   // Workspace States
   const [workspaces, setWorkspaces] = useState([]);
   const [loadingWorkspaces, setLoadingWorkspaces] = useState(true);
@@ -978,5 +992,7 @@ export const useDashboardPage = () => {
     uploadingFile,
     handleUploadFile,
     handleDeleteFile,
+    isGlobalReadOnly,
+    handleToggleGlobalReadOnly,
   };
 };

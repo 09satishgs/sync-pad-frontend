@@ -155,3 +155,88 @@
   }
 }
 
+/* Quill Editor Table Custom Styles */
+.quill-wrapper .ql-editor table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.quill-wrapper .ql-editor td,
+.quill-wrapper .ql-editor th {
+  border: 1px solid var(--border-color) !important;
+  padding: 8px 12px !important;
+  text-align: left;
+}
+
+.quill-wrapper .ql-editor th {
+  background-color: var(--bg-card);
+  font-weight: 600;
+}
+
+/* Cell copy flash confirmation */
+.quill-wrapper .ql-editor td.copied-flash,
+.quill-wrapper .ql-editor th.copied-flash {
+  animation: cellCopyFlash 0.6s ease;
+}
+
+@keyframes cellCopyFlash {
+  0% {
+    background-color: var(--border-focus) !important;
+    color: #ffffff;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Quill Custom Table Context Menu */
+.quill-context-menu {
+  position: absolute;
+  z-index: 10000;
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  animation: contextMenuFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes contextMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quill-context-menu button {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  padding: 6px 12px;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-weight: 500;
+}
+
+.quill-context-menu button:hover {
+  background-color: var(--bg-card);
+  color: var(--accent-color);
+}
+
+.quill-context-menu .context-menu-divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: 4px 0;
+}
+
