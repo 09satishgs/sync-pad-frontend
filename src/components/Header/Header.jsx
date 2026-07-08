@@ -18,6 +18,8 @@ export const Header = ({
   handleDeleteSavedSheetFromTab,
   isLiveLocked = false,
   handleTakeControl,
+  isGlobalReadOnly,
+  handleToggleGlobalReadOnly,
 }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -109,6 +111,7 @@ export const Header = ({
                   type="text"
                   className="input-field header-title-input"
                   value={activeSavedTab.title}
+                  disabled={isGlobalReadOnly}
                   onChange={(e) =>
                     handleTabPropertiesChange(activeSavedTab.id, 'title', e.target.value)
                   }
@@ -116,6 +119,7 @@ export const Header = ({
                 <select
                   className="select-type header-category-select"
                   value={activeSavedTab.category_id || ''}
+                  disabled={isGlobalReadOnly}
                   onChange={(e) =>
                     handleTabPropertiesChange(
                       activeSavedTab.id,
@@ -135,6 +139,7 @@ export const Header = ({
                 {!activeSavedTab.isDirty ? (
                   <button
                     className="btn header-refresh-btn"
+                    disabled={isGlobalReadOnly}
                     onClick={() => handleRefreshSavedSheet(activeSavedTab.id)}
                   >
                     <RefreshCw size={12} /> Refresh
@@ -142,6 +147,7 @@ export const Header = ({
                 ) : (
                   <button
                     className="btn btn-primary header-save-btn"
+                    disabled={isGlobalReadOnly}
                     onClick={() => handleSaveSavedSheet(activeSavedTab.id)}
                   >
                     Save Edits *
@@ -150,6 +156,7 @@ export const Header = ({
 
                 <button
                   className="btn btn-danger header-delete-btn"
+                  disabled={isGlobalReadOnly}
                   onClick={() => handleDeleteSavedSheetFromTab(activeSavedTab.id)}
                 >
                   Delete
@@ -157,6 +164,19 @@ export const Header = ({
               </div>
             )
           )}
+        </div>
+
+        {/* Global Read Only Toggle Switch */}
+        <div className="header-right-toggle flex-align flex-gap-3">
+          <span className="toggle-label">Read Only</span>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={isGlobalReadOnly}
+              onChange={(e) => handleToggleGlobalReadOnly(e.target.checked)}
+            />
+            <span className="slider round"></span>
+          </label>
         </div>
       </div>
     </header>

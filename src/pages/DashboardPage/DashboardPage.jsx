@@ -76,6 +76,8 @@ export default function DashboardPage() {
     handleUploadFile,
     handleDeleteFile,
     handleOpenArchivedSheet,
+    isGlobalReadOnly,
+    handleToggleGlobalReadOnly,
   } = useDashboardPage();
 
   if (loadingWorkspaces) {
@@ -160,6 +162,8 @@ export default function DashboardPage() {
           handleDeleteSavedSheetFromTab={handleDeleteSavedSheetFromTab}
           isLiveLocked={isLiveLocked}
           handleTakeControl={handleTakeControl}
+          isGlobalReadOnly={isGlobalReadOnly}
+          handleToggleGlobalReadOnly={handleToggleGlobalReadOnly}
         />
 
         {/* Content Editor */}
@@ -171,7 +175,7 @@ export default function DashboardPage() {
                 onChange={handleContentChange}
                 remoteTrigger={remoteTrigger}
                 sheetId={activeSheet.id}
-                readOnly={isLiveLocked}
+                readOnly={isLiveLocked || isGlobalReadOnly}
               />
             </div>
           ) : (
@@ -194,6 +198,7 @@ export default function DashboardPage() {
               onChange={handleContentChange}
               remoteTrigger={remoteTrigger}
               sheetId={activeSavedTab.id}
+              readOnly={isGlobalReadOnly}
             />
           </div>
         ) : (
